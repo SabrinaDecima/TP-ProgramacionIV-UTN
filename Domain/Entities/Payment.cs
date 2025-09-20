@@ -22,4 +22,4 @@ namespace Domain.Entities
         public bool Pagado { get; set; }
     }
 }
-}
+

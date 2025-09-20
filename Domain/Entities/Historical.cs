@@ -22,4 +22,4 @@ namespace Domain.Entities
         public DateTime Fecha { get; set; }
     }
 }
-}
+
