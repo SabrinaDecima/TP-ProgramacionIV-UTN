@@ -4,6 +4,7 @@ namespace Domain.Entities
 {
     public class Role
     {
+        protected Role() { }
         public Role(int id, string name) 
         {
             Id = id;

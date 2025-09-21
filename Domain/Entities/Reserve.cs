@@ -4,6 +4,7 @@ namespace Domain.Entities
 {
     public class Reserve
     {
+        protected Reserve() { }
         public Reserve(int id, int userId, int gymClassId, DateTime dateReserve)
         {
             Id = id;

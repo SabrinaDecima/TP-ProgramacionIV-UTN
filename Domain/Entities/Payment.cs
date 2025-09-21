@@ -3,6 +3,7 @@ namespace Domain.Entities
 {
     public class Payment
     {
+        protected Payment() { }
         public Payment (int id, int userId, decimal amount, DateTime date)
         {
             Id = id;
