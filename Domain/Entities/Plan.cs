@@ -3,6 +3,7 @@ namespace Domain.Entities
 {
     public class Plan
     {
+        protected Plan() { }
         public Plan(int id, string name)
         {
             Id = id;
