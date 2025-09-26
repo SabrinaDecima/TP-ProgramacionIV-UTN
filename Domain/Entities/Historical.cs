@@ -8,6 +8,7 @@ namespace Domain.Entities
 {
     public class Historical
     {
+        protected Historical()  { }
         public Historical(int id, int userId, DateTime date)
         {
             Id = id;
