@@ -1,9 +1,5 @@
 ﻿using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Application.Abstraction
 {
@@ -13,9 +9,12 @@ namespace Application.Abstraction
         Payment? GetById(int id);
 
         Payment CreatePayment(Payment payment);
+        bool UpdatePayment(int id, Payment payment);
+        bool DeletePayment(int id);
 
         List<Payment> GetPaymentsByUserId(int userId);
 
         List<Payment> GetPendingsPaymentsByUserId(int userId);
     }
 }
+

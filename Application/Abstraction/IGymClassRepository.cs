@@ -9,7 +9,7 @@ namespace Application.Abstraction
 
         GymClass? GetById(int id);
 
-        bool CreateGymClass (GymClass gymClass);
+        GymClass CreateGymClass (GymClass gymClass);
 
         bool UpdateGymClass (int id, GymClass gymClass);
 

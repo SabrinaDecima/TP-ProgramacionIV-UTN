@@ -9,7 +9,7 @@ namespace Application.Abstraction
 
         Plan? GetPlanById(int id);
 
-        bool CreatePlan(Plan plan);
+        Plan CreatePlan(Plan plan);
 
         bool UpdatePlan(int id, Plan plan);
 

@@ -1,3 +1,5 @@
+using Application.Services;
+using Application.Services.Implementations;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +9,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<GymDbContext>(options => 
 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
+
+#region
+builder.Services.AddScoped<IInstructorService, InstructorService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPlanService, PlanService>();
+builder.Services.AddScoped<IReserveService, ReservaService>();
+builder.Services.AddScoped<IHistoricalService, HistoricalService>();
+
+#endregion
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
