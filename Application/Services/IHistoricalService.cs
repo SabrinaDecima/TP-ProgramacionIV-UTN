@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Application.Services
 {
-    public interface IHistorialService
+    public interface IHistoricalService
     {
        
     }

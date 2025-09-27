@@ -32,7 +32,7 @@ namespace Infrastructure.Repositories
             return plan;
         }
 
-        public bool UpdatePlan(int plan, Plan plan
+        public bool UpdatePlan(int planId, Plan plan)
         {
             _context.Plans.Update(plan);
             return _context.SaveChanges() > 0;

@@ -14,8 +14,8 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IInstructorService, InstructorService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
-builder.Services.AddScoped<IReserveService, ReservaService>();
-builder.Services.AddScoped<IHistoricalService, HistoricalService>();
+builder.Services.AddScoped<IReservaService, ReservaService >();
+builder.Services.AddScoped<IHistoricalService, HistoricalService > ();
 
 #endregion
 
