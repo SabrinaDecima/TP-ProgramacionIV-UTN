@@ -13,6 +13,8 @@ namespace Domain.Entities
         public int Id { get; set; }
         public string Nombre { get; set; } // tipo de plan
 
+        public decimal Price { get; set; }
+
         public List<User>? Users { get; set; } // relacion 1 a muchos con User
     }
 

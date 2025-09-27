@@ -1,5 +1,7 @@
 ﻿using Application.Abstraction;
-using Application.Services;
+using Application.Interfaces;
+using Contracts.Payment.Request;
+using Contracts.Payment.Response;
 using Domain.Abstraction;
 using Domain.Entities;
 using System.Collections.Generic;
@@ -8,7 +10,20 @@ namespace Application.Services.Implementations
 {
     public class PaymentService : IPaymentService
     {
-       
+        public bool CreatePayment(CreatePaymentRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<PaymentResponse> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public PaymentResponse? GetById(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

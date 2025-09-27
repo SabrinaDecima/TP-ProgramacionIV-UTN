@@ -1,4 +1,4 @@
-using Application.Services;
+using Application.Interfaces;
 using Application.Services.Implementations;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

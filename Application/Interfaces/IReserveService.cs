@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 
 
-namespace Application.Services
+namespace Application.Interfaces
 {
     public interface IReservaService
     {

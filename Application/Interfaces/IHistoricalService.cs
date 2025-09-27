@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using System.Collections.Generic;
 
-namespace Application.Services
+namespace Application.Interfaces
 {
     public interface IHistoricalService
     {
