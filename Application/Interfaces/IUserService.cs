@@ -17,7 +17,7 @@ namespace Application.Interfaces
 
         bool CreateUser(CreateUserRequest request);
 
-        bool UpdateUser(UpdateUserRequest request);
+        bool UpdateUser(int id, UpdateUserRequest request);
 
         bool DeleteUser(int id);
     }
