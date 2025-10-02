@@ -13,36 +13,53 @@ namespace Application.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPlanRepository _planRepository;
+        private readonly IRoleRepository _roleRepository;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(
+            IUserRepository userRepository,
+            IPlanRepository planRepository,
+            IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
+            _planRepository = planRepository;
+            _roleRepository = roleRepository;
         }
 
         public bool CreateUser(CreateUserRequest request)
         {
             var existingUser = _userRepository.GetByEmail(request.Email);
-
-            if(existingUser == null)
+            if (existingUser != null)
             {
-                return false;
+                return false; // usuario ya existe
             }
 
-            var plan = new Plan(request.PlanId, string.Empty);
-            var role = new Role(request.RoleId, string.Empty);
+            // Obtener Plan real desde la base de datos
+            var plan = _planRepository.GetPlanById(request.PlanId);
+            if (plan == null)
+            {
+                return false; // plan no encontrado
+            }
+
+            // Obtener Role real desde la base de datos
+            var role = _roleRepository.GetById(request.RoleId);
+            if (role == null)
+            {
+                return false; // rol no encontrado
+            }
+
             var newUser = new User(
                 0,
                 request.Nombre,
                 request.Apellido,
-                 request.Email,
+                request.Email,
                 request.Telefono,
-                 request.Contraseña,
+                request.Contraseña,
                 plan,
                 role
-                );
+            );
 
-
-            return _userRepository.CreateUser(newUser); ;
+            return _userRepository.CreateUser(newUser);
         }
 
         public bool DeleteUser(int id)
