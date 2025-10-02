@@ -6,7 +6,7 @@ namespace Domain.Entities
 {
     public class GymClass
     {
-        protected GymClass() { }
+        public GymClass() { }
         public GymClass(int id, string name, string description, Instructor instructor, int durationMinute, string imageUrl)
         {
             Id = id;
@@ -15,6 +15,7 @@ namespace Domain.Entities
             Instructor = instructor;
             DuracionMinutos = durationMinute;
             ImageUrl = imageUrl;
+
         }
         public int Id { get; set; }
         public string Nombre { get; set; }
@@ -24,9 +25,9 @@ namespace Domain.Entities
         public int DuracionMinutos { get; set; }
         public string ImageUrl { get; set; }
 
-        public List<UserClass>? UserClasses { get; set; } //relcion con usuarios (1 a muchos)
+        public List<UserClass> UserClasses { get; set; } = new(); //relcion con usuarios (1 a muchos)
+        public DateTime Fecha { get; set; }
 
-        public List<Reserve>? Reservas {  get; set; }
     }
 }
 

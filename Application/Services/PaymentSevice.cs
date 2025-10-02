@@ -2,9 +2,7 @@
 using Application.Interfaces;
 using Contracts.Payment.Request;
 using Contracts.Payment.Response;
-using Domain.Abstraction;
-using Domain.Entities;
-using System.Collections.Generic;
+
 
 namespace Application.Services.Implementations
 {

@@ -1,39 +1,78 @@
-﻿using Application.Interfaces;
+﻿using Application.Abstraction;
+using Application.Interfaces;
 using Contracts.GymClass.Request;
 using Contracts.GymClass.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Domain.Entities;
+
+
 
 namespace Application.Services
 {
     public class GymClassService : IGymClassService
     {
+        private readonly IGymClassRepository _gymClassRepository;
+        public GymClassService(IGymClassRepository gymClassRepository)
+        {
+            _gymClassRepository = gymClassRepository;
+        }
+
         public bool CreateGymClass(CreateGymClassRequest request)
         {
-            throw new NotImplementedException();
+            var gymClass = new GymClass
+            {
+                Nombre = request.Nombre,
+                InstructorId = request.InstructorId,
+                Fecha = request.Fecha
+            };
+
+      
+            var created = _gymClassRepository.CreateGymClass(gymClass);
+            return created != null;
         }
 
         public bool DeleteGymClass(int id)
         {
-            throw new NotImplementedException();
+            return _gymClassRepository.DeleteGymClass(id);
         }
 
         public List<GymClassResponse> GetAll()
         {
-            throw new NotImplementedException();
+            var classes = _gymClassRepository.GetAll();
+            return classes.Select(gc => new GymClassResponse
+            {
+                Id = gc.Id,
+                Nombre = gc.Nombre,
+                InstructorNombre = gc.Instructor.Nombre,
+                Fecha = gc.Fecha
+            }).ToList();
         }
 
         public GymClassResponse? GetById(int id)
         {
-            throw new NotImplementedException();
+            var gc = _gymClassRepository.GetById(id);
+            if (gc == null) return null;
+
+            return new GymClassResponse
+            {
+                Id = gc.Id,
+                Nombre = gc.Nombre,
+                InstructorNombre = gc.Instructor.Nombre,
+                Fecha = gc.Fecha
+            };
         }
 
         public bool UpdateGymClass(UpdateGymClassRequest request)
         {
-            throw new NotImplementedException();
+            var gymClass = _gymClassRepository.GetById(request.Id);
+            if (gymClass == null) return false;
+
+            gymClass.Nombre = request.Nombre;
+            gymClass.InstructorId = request.InstructorId;
+            gymClass.Fecha = request.Fecha;
+
+
+            return _gymClassRepository.UpdateGymClass(request.Id, gymClass);
         }
+
     }
 }

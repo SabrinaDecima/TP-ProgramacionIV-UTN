@@ -1,4 +1,5 @@
-﻿using Contracts.Instructor.Request;
+﻿using Application.Services;
+using Contracts.Instructor.Request;
 using Contracts.Instructor.Response;
 
 
@@ -11,11 +12,14 @@ namespace Application.Interfaces
 
         InstructorResponse? GetById(int id);
 
-        bool CreateInstructor(CreateInstructorRequest request);
+        InstructorResponse CreateInstructor(CreateInstructorRequest request);
 
         bool UpdateInstructor(UpdateInstructorRequest request);
 
         bool DeleteInstructor(int id);
+
+
+
     }
 }
 

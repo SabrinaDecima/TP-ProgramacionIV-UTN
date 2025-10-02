@@ -1,6 +1,7 @@
 ﻿using Application.Abstraction;
 using Domain.Entities;
 using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Infrastructure.Repositories
@@ -30,10 +31,23 @@ namespace Infrastructure.Repositories
             return instructor;
         }
 
+        //public bool UpdateInstructor(int id, Instructor instructor)
+       // {
+       //     _context.Instructors.Update(instructor);
+         //   return _context.SaveChanges() > 0;
+       // }
+
         public bool UpdateInstructor(int id, Instructor instructor)
         {
-            _context.Instructors.Update(instructor);
-            return _context.SaveChanges() > 0;
+            var existing = _context.Instructors.Find(id);
+            if (existing == null) return false;
+
+            // Actualiza solo las propiedades (mejor que reemplazar toda la entidad)
+            existing.Nombre = instructor.Nombre;
+            existing.Apellido = instructor.Apellido;
+
+            _context.SaveChanges();
+            return true;
         }
 
         public bool DeleteInstructor(int id)

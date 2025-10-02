@@ -7,14 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Historical\**" />
     <Compile Remove="Request\**" />
+    <EmbeddedResource Remove="Historical\**" />
     <EmbeddedResource Remove="Request\**" />
+    <None Remove="Historical\**" />
     <None Remove="Request\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Historical\Response\" />
-    <Folder Include="Historical\Request\" />
   </ItemGroup>
 
 </Project>

@@ -14,6 +14,7 @@ namespace Contracts.GymClass.Response
         public string InstructorNombre { get; set; }
         public int DuracionMinutos { get; set; }
         public string ImageUrl { get; set; }
+        public DateTime Fecha { get; set; }
 
     }
 }

@@ -13,6 +13,8 @@ namespace Application.Abstraction
         bool UpdateInstructor (int id, Instructor instructor);
 
         bool DeleteInstructor (int id);
+
+
     }
 }
 

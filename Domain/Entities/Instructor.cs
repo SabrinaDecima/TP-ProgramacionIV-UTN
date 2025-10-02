@@ -3,7 +3,7 @@ namespace Domain.Entities
 {
     public class Instructor
     {
-        protected Instructor() { }
+        public Instructor() { }
         public Instructor(int id, string name, string lastName)
         {
             Id = id;
