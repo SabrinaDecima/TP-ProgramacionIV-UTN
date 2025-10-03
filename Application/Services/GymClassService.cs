@@ -21,7 +21,6 @@ namespace Application.Services
             var gymClass = new GymClass
             {
                 Nombre = request.Nombre,
-                InstructorId = request.InstructorId,
                 Fecha = request.Fecha
             };
 
@@ -42,7 +41,6 @@ namespace Application.Services
             {
                 Id = gc.Id,
                 Nombre = gc.Nombre,
-                InstructorNombre = gc.Instructor.Nombre,
                 Fecha = gc.Fecha
             }).ToList();
         }
@@ -56,7 +54,6 @@ namespace Application.Services
             {
                 Id = gc.Id,
                 Nombre = gc.Nombre,
-                InstructorNombre = gc.Instructor.Nombre,
                 Fecha = gc.Fecha
             };
         }
@@ -67,7 +64,6 @@ namespace Application.Services
             if (gymClass == null) return false;
 
             gymClass.Nombre = request.Nombre;
-            gymClass.InstructorId = request.InstructorId;
             gymClass.Fecha = request.Fecha;
 
 

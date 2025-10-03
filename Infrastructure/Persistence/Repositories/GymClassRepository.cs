@@ -17,7 +17,6 @@ namespace Infrastructure.Repositories
         public List<GymClass> GetAll()
         {
             return _context.GymClasses
-                .Include(static gc => gc.Instructor)      // ← Carga Instructor
                 .Include(static gc => gc.UserClasses)     // ← Opcional: si necesitas socios
                 .ThenInclude(uc => uc.User)        // ← Si necesitas datos del User
                 .ToList();
@@ -26,7 +25,6 @@ namespace Infrastructure.Repositories
         public GymClass? GetById(int id)
         {
             return _context.GymClasses
-                .Include(gc => gc.Instructor)
                 .Include(gc => gc.UserClasses)
                 .ThenInclude(uc => uc.User)
                 .FirstOrDefault(gc => gc.Id == id);
@@ -46,7 +44,7 @@ namespace Infrastructure.Repositories
 
             existing.Nombre = gymClass.Nombre;
             existing.Descripcion = gymClass.Descripcion;
-            existing.InstructorId = gymClass.InstructorId;
+            //existing.InstructorId = gymClass.InstructorId;
             existing.DuracionMinutos = gymClass.DuracionMinutos;
             existing.ImageUrl = gymClass.ImageUrl;
             existing.Fecha = gymClass.Fecha;

@@ -9,7 +9,6 @@ namespace Infrastructure.Persistence
         public GymDbContext(DbContextOptions<GymDbContext> options ) : base( options ) { }
 
         public DbSet<GymClass> GymClasses { get; set; }  
-        public DbSet<Instructor> Instructors { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Plan> Plans { get; set; }
         public DbSet<Role > Roles { get; set; }
@@ -62,12 +61,6 @@ namespace Infrastructure.Persistence
                 new Role { Id = 2, Nombre = nameof(TypeRole.Administrador) },
                 new Role { Id = 3, Nombre = nameof(TypeRole.SuperAdministrador) });
 
-            
-            modelBuilder.Entity<GymClass>()
-                .HasOne(gc => gc.Instructor)
-                .WithMany() 
-                .HasForeignKey(gc => gc.InstructorId)
-                .OnDelete(DeleteBehavior.Restrict); // Evita borrado en cascada
         }
 
     

@@ -13,8 +13,6 @@ namespace Contracts.GymClass.Request
 
         public string Descripcion { get; set; }
 
-        public int InstructorId { get; set; }
-
         public int DuracionMinutos { get; set; }
         public string ImageUrl { get; set; }
         public DateTime Fecha { get; set; }

@@ -19,7 +19,7 @@ namespace Domain.Entities
         public User? User { get; set; } //relacion con usuario (1 a 1).
 
         public decimal Monto { get; set; }
-        public DateTime Fecha { get; set; }
+        public DateTime Fecha { get; set; } //ver si es data time
         public bool Pagado { get; set; }
     }
 }
