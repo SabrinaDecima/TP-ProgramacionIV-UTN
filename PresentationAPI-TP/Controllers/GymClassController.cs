@@ -50,16 +50,14 @@ namespace WebApi.Controllers
             return Ok(); 
         }
 
-        [HttpPut]
-        public IActionResult Update([FromBody] UpdateGymClassRequest request)
+        [HttpPut("{id}")]
+        public IActionResult Update([FromRoute] int id , [FromBody] UpdateGymClassRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Nombre))
                 return BadRequest("El nombre de la clase es obligatorio.");
 
-            if (string.IsNullOrWhiteSpace(request.Instructor))
-                return BadRequest("El nombre del instructor es obligatorio.");
 
-            var updated = _gymClassService.UpdateGymClass(request);
+            var updated = _gymClassService.UpdateGymClass(id,request);
             if (!updated)
                 return NotFound("Clase de gimnasio no encontrada.");
 

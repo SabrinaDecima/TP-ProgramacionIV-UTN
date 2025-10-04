@@ -21,6 +21,9 @@ namespace Application.Services
             var gymClass = new GymClass
             {
                 Nombre = request.Nombre,
+                Descripcion = request.Descripcion,
+                DuracionMinutos = request.DuracionMinutos,
+                ImageUrl = request.ImageUrl,
                 Fecha = request.Fecha,
                 Hora = request.Hora
             };
@@ -61,16 +64,16 @@ namespace Application.Services
             };
         }
 
-        public bool UpdateGymClass(UpdateGymClassRequest request)
+        public bool UpdateGymClass(int id, UpdateGymClassRequest request)
         {
-            var gymClass = _gymClassRepository.GetById(request.Id);
+            var gymClass = _gymClassRepository.GetById(id);
             if (gymClass == null) return false;
 
             gymClass.Nombre = request.Nombre;
             gymClass.Fecha = request.Fecha;
             gymClass.Hora = request.Hora;
 
-            return _gymClassRepository.UpdateGymClass(request.Id, gymClass);
+            return _gymClassRepository.UpdateGymClass(id, gymClass);
         }
 
     }

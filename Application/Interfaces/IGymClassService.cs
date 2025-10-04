@@ -16,7 +16,7 @@ namespace Application.Interfaces
 
         bool CreateGymClass(CreateGymClassRequest request);
 
-        bool UpdateGymClass(UpdateGymClassRequest request);
+        bool UpdateGymClass(int id, UpdateGymClassRequest request);
 
         bool DeleteGymClass(int id);
     }
