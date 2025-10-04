@@ -42,6 +42,9 @@ namespace WebApi.Controllers
             if (string.IsNullOrWhiteSpace(request.Nombre))
                 return BadRequest("El nombre es obligatorio.");
 
+            if (string.IsNullOrWhiteSpace(request.Instructor))
+                return BadRequest("El nombre del instructor es obligatorio.");
+
             var created = _gymClassService.CreateGymClass(request);
             if (!created)
                 return BadRequest("No se pudo crear la clase de gimnasio.");
@@ -52,6 +55,12 @@ namespace WebApi.Controllers
         [HttpPut]
         public IActionResult Update([FromBody] UpdateGymClassRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.Nombre))
+                return BadRequest("El nombre de la clase es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(request.Instructor))
+                return BadRequest("El nombre del instructor es obligatorio.");
+
             var updated = _gymClassService.UpdateGymClass(request);
             if (!updated)
                 return NotFound("Clase de gimnasio no encontrada.");

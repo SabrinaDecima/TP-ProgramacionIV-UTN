@@ -44,8 +44,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IGymClassService, GymClassService>();
 builder.Services.AddScoped<IGymClassRepository, GymClassRepository>();
-builder.Services.AddScoped<IInstructorRepository, InstructorRepository>();
-builder.Services.AddScoped<IInstructorService, InstructorService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPlanService, PlanService>();

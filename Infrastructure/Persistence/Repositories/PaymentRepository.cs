@@ -1,8 +1,7 @@
 ﻿using Application.Abstraction;
-
 using Domain.Entities;
 using Infrastructure.Persistence;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -15,13 +14,14 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public List<Payment> GetAll() {
-            return _context.Payments.ToList();
+        public List<Payment> GetAll()
+        {
+            return _context.Payments.Include(p => p.User).ToList();
         }
 
         public Payment? GetById(int id)
         {
-            return _context.Payments.Find(id);
+            return _context.Payments.Include(p => p.User).FirstOrDefault(p => p.Id == id);
         }
 
         public Payment CreatePayment(Payment payment)
@@ -31,36 +31,37 @@ namespace Infrastructure.Repositories
             return payment;
         }
 
-        public bool UpdatePayment(int id, Payment payment)
+        public Payment UpdatePayment(Payment payment)
         {
             _context.Payments.Update(payment);
             _context.SaveChanges();
-            return true;
+            return payment;
         }
 
         public bool DeletePayment(int id)
         {
-            var entity = _context.Payments.Find(id);
-            if (entity != null)
-            {
-                _context.Payments.Remove(entity);
-                _context.SaveChanges();
-                return true;
-            }
-            return false;
+            var payment = _context.Payments.Find(id);
+            if (payment == null) return false;
+
+            _context.Payments.Remove(payment);
+            _context.SaveChanges();
+            return true;
         }
 
-        public List<Payment> GetPaymentsByUserId(int userId) {
-            return _context.Payments.Where(p => p.UserId == userId).ToList();
+        public List<Payment> GetPaymentsByUserId(int userId)
+        {
+            return _context.Payments
+                .Include(p => p.User)
+                .Where(p => p.UserId == userId)
+                .ToList();
         }
 
         public List<Payment> GetPendingsPaymentsByUserId(int userId)
         {
             return _context.Payments
+                .Include(p => p.User)
                 .Where(p => p.UserId == userId && !p.Pagado)
                 .ToList();
         }
-            
     }
 }
-

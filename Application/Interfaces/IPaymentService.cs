@@ -1,19 +1,15 @@
-﻿using Contracts.Payment.Request;
-using Contracts.Payment.Response;
+﻿using Domain.Entities;
 
-namespace Application.Interfaces
+namespace Application.Abstraction
 {
     public interface IPaymentService
     {
-        List<PaymentResponse> GetAll();
-
-        PaymentResponse? GetById(int id);
-
-        bool CreatePayment(CreatePaymentRequest request);
-
-
+        List<Payment> GetAllPayments();
+        Payment? GetPaymentById(int id);
+        Payment CreatePayment(Payment payment);
+        Payment UpdatePayment(Payment payment);
+        bool DeletePayment(int id);
+        List<Payment> GetPaymentsByUserId(int userId);
+        List<Payment> GetPendingPaymentsByUserId(int userId);
     }
 }
-
-
-
