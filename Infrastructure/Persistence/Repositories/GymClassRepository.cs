@@ -44,10 +44,10 @@ namespace Infrastructure.Repositories
 
             existing.Nombre = gymClass.Nombre;
             existing.Descripcion = gymClass.Descripcion;
-            existing.Instructor = gymClass.Instructor;
             existing.DuracionMinutos = gymClass.DuracionMinutos;
             existing.ImageUrl = gymClass.ImageUrl;
             existing.Fecha = gymClass.Fecha;
+            existing.Hora = gymClass.Hora;
 
             _context.SaveChanges();
             return true;

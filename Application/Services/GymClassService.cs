@@ -21,8 +21,8 @@ namespace Application.Services
             var gymClass = new GymClass
             {
                 Nombre = request.Nombre,
-                Instructor = request.Instructor,
-                Fecha = request.Fecha
+                Fecha = request.Fecha,
+                Hora = request.Hora
             };
 
       
@@ -42,8 +42,8 @@ namespace Application.Services
             {
                 Id = gc.Id,
                 Nombre = gc.Nombre,
-                Instructor = gc.Instructor,
-                Fecha = gc.Fecha
+                Fecha = gc.Fecha,
+                Hora = gc.Hora
             }).ToList();
         }
 
@@ -56,8 +56,8 @@ namespace Application.Services
             {
                 Id = gc.Id,
                 Nombre = gc.Nombre,
-                Instructor = gc.Instructor,
-                Fecha = gc.Fecha
+                Fecha = gc.Fecha,
+                Hora = gc.Hora
             };
         }
 
@@ -68,7 +68,7 @@ namespace Application.Services
 
             gymClass.Nombre = request.Nombre;
             gymClass.Fecha = request.Fecha;
-            gymClass.Instructor = request.Instructor;
+            gymClass.Hora = request.Hora;
 
             return _gymClassRepository.UpdateGymClass(request.Id, gymClass);
         }

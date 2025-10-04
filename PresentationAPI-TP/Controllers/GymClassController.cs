@@ -42,8 +42,6 @@ namespace WebApi.Controllers
             if (string.IsNullOrWhiteSpace(request.Nombre))
                 return BadRequest("El nombre es obligatorio.");
 
-            if (string.IsNullOrWhiteSpace(request.Instructor))
-                return BadRequest("El nombre del instructor es obligatorio.");
 
             var created = _gymClassService.CreateGymClass(request);
             if (!created)
