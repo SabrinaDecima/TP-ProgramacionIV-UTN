@@ -40,12 +40,13 @@ namespace Infrastructure.Persistence
             modelBuilder.Entity<Plan>()
                 .HasMany(p => p.Users)
                 .WithOne(u => u.Plan) 
-                .HasForeignKey(u => u.PlanId);
+                .HasForeignKey(u => u.PlanId)
+                .OnDelete(DeleteBehavior.Restrict); // Evita que se borren usuarios al borrar un plan
 
             modelBuilder.Entity<Plan>().HasData(
-            new Plan { Id = 1, Nombre = nameof(TypePlan.Basic), Precio = 25.5m},
-            new Plan { Id = 2, Nombre = nameof(TypePlan.Premium), Precio = 45.0m},
-            new Plan { Id = 3, Nombre = nameof(TypePlan.Elite), Precio = 70.0m }
+            new Plan { Id = 1, Tipo= TypePlan.Basic, Precio = 25.0m},
+            new Plan { Id = 2, Tipo =TypePlan.Premium, Precio = 45.0m},
+            new Plan { Id = 3, Tipo = TypePlan.Elite, Precio = 70.0m }
             );
 
 

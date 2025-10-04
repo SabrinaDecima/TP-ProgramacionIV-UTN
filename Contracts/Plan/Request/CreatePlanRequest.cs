@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using Domain.Entities;
 
 namespace Contracts.Plan.Request
 {
     public class CreatePlanRequest
     {
-        public int Id { get; set; }
-        public string Nombre { get; set; }
+        public TypePlan Tipo { get; set; }
 
-        public decimal Price { get; set; }
+        public decimal Precio { get; set; }
     }
 }

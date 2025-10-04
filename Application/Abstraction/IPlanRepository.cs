@@ -5,7 +5,7 @@ namespace Application.Abstraction
 {
     public interface IPlanRepository
     {
-        List<Plan> GetAllPlans();
+        List<Plan> GetAll();
 
         Plan? GetPlanById(int id);
 

@@ -15,7 +15,7 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public List<Plan> GetAllPlans()
+        public List<Plan> GetAll()
         {
             return _context.Plans.ToList();
         }
