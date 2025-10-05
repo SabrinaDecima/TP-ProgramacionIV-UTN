@@ -4,16 +4,16 @@ namespace Domain.Entities
     public class Plan : BaseEntity
     {
         public Plan() { }
-        public Plan(int id, string name, decimal price)
+        public Plan(int id, TypePlan tipo, decimal price)
         {
             Id = id;
-            Nombre = name;
+            Tipo= tipo;
             Precio = price;
         }
 
 
         public int Id { get; set; }
-        public string Nombre { get; set; } // tipo de plan
+        public TypePlan Tipo { get; set; }
 
         public decimal Precio { get; set; }
 
