@@ -2,11 +2,13 @@ using Application.Abstraction;
 using Application.Interfaces;
 using Application.Services;
 using Application.Services.Implementations;
-
+using Domain.Entities;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,27 +22,27 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-  //  .AddJwtBearer(options =>
-    //{
-      //  options.TokenValidationParameters = new TokenValidationParameters
-        //{
-          //  ValidateIssuer = true,
-            //ValidateAudience = true,
-            //ValidateLifetime = true,
-            //ValidateIssuerSigningKey = true,
-            //ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            //ValidAudience = builder.Configuration["Jwt:Audience"],
-            //IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-        //};
-    //});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+           ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
 
-//builder.Services.AddAuthorization(options =>
-//{
-  //  options.AddPolicy(nameof(TypeRole.Socio), policy => policy.RequireRole(nameof(TypeRole.Socio)));
-    //options.AddPolicy(nameof(TypeRole.Administrador), policy => policy.RequireRole(nameof(TypeRole.Administrador)));
-    //options.AddPolicy(nameof(TypeRole.SuperAdministrador), policy => policy.RequireRole(nameof(TypeRole.SuperAdministrador)));
-//});
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(nameof(TypeRole.Socio), policy => policy.RequireRole(nameof(TypeRole.Socio)));
+    options.AddPolicy(nameof(TypeRole.Administrador), policy => policy.RequireRole(nameof(TypeRole.Administrador)));
+    options.AddPolicy(nameof(TypeRole.SuperAdministrador), policy => policy.RequireRole(nameof(TypeRole.SuperAdministrador)));
+});
 
 builder.Services.AddScoped<IGymClassService, GymClassService>();
 builder.Services.AddScoped<IGymClassRepository, GymClassRepository>();
@@ -63,7 +65,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//app.UseAuthentication();
+app.UseAuthentication();
 
 app.UseAuthorization();
 
