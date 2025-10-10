@@ -1,15 +1,19 @@
-﻿using Domain.Entities;
+﻿
+using Contracts.GymClass.Request;
+
+using Contracts.Payment.Request;
+using Contracts.Payment.Response;
 
 namespace Application.Abstraction
 {
     public interface IPaymentService
     {
-        List<Payment> GetAllPayments();
-        Payment? GetPaymentById(int id);
-        Payment CreatePayment(Payment payment);
-        Payment UpdatePayment(Payment payment);
+        List<PaymentResponse> GetAllPayments();
+        PaymentResponse? GetPaymentById(int id);
+        PaymentResponse? CreatePayment(CreatePaymentRequest request);
+        PaymentResponse? UpdatePayment(int id, UpdatePaymentRequest request);
         bool DeletePayment(int id);
-        List<Payment> GetPaymentsByUserId(int userId);
-        List<Payment> GetPendingPaymentsByUserId(int userId);
+        List<PaymentResponse> GetPaymentsByUserId(int userId);
+        List<PaymentResponse> GetPendingPaymentsByUserId(int userId);
     }
 }

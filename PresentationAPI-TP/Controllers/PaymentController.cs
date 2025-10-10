@@ -1,5 +1,6 @@
 ﻿using Application.Abstraction;
-using Domain.Entities;
+using Contracts.GymClass.Request;
+using Contracts.Payment.Request;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -16,45 +17,70 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Payment>> GetAll() => Ok(_paymentService.GetAllPayments());
+        public IActionResult Get()
+        {
+            var payments = _paymentService.GetAllPayments();
+            return Ok(payments);
+        }
 
         [HttpGet("{id}")]
-        public ActionResult<Payment> GetById(int id)
+        public IActionResult Get(int id)
         {
             var payment = _paymentService.GetPaymentById(id);
-            if (payment == null) return NotFound();
+            if (payment == null)
+                return NotFound();
             return Ok(payment);
         }
 
         [HttpPost]
-        public ActionResult<Payment> Create(Payment payment)
+        public IActionResult Create(CreatePaymentRequest request)
         {
-            var createdPayment = _paymentService.CreatePayment(payment);
-            return CreatedAtAction(nameof(GetById), new { id = createdPayment.Id }, createdPayment);
+            
+            if (request.Monto <= 0)
+                return BadRequest("El monto debe ser mayor a cero.");
+
+            var result = _paymentService.CreatePayment(request);
+            if (result == null)
+                return BadRequest("No se pudo crear el pago.");
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Payment> Update(int id, Payment payment)
+        public IActionResult Update(int id, UpdatePaymentRequest request)
         {
-            if (id != payment.Id) return BadRequest();
-            var updatedPayment = _paymentService.UpdatePayment(payment);
-            return Ok(updatedPayment);
+            var result = _paymentService.UpdatePayment(id, request);
+            if (result == null)
+                return NotFound();
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public IActionResult Delete(int id)
         {
-            var result = _paymentService.DeletePayment(id);
-            if (!result) return NotFound();
-            return NoContent();
+            var deleted = _paymentService.DeletePayment(id);
+            if (!deleted)
+                return NotFound();
+            return Ok();
         }
 
         [HttpGet("user/{userId}")]
-        public ActionResult<List<Payment>> GetPaymentsByUser(int userId)
-            => Ok(_paymentService.GetPaymentsByUserId(userId));
+        public IActionResult GetPaymentsByUser(int userId)
+        {
+            if (userId <= 0)
+                return BadRequest("El ID de usuario no es válido.");
 
-        [HttpGet("user/{userId}/pending")]
-        public ActionResult<List<Payment>> GetPendingPaymentsByUser(int userId)
-            => Ok(_paymentService.GetPendingPaymentsByUserId(userId));
+            var payments = _paymentService.GetPaymentsByUserId(userId);
+            return Ok(payments);
+        }
+
+        [HttpGet("user/{userId}/payments/pending")]
+        public IActionResult GetPendingPaymentsByUser(int userId)
+        {
+            if (userId <= 0)
+                return BadRequest("El ID de usuario no es válido.");
+
+            var pendingPayments = _paymentService.GetPendingPaymentsByUserId(userId);
+            return Ok(pendingPayments);
+        }
     }
 }

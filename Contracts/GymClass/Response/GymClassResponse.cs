@@ -13,9 +13,9 @@ namespace Contracts.GymClass.Response
         public string Descripcion { get; set; }
         public int DuracionMinutos { get; set; }
         public string ImageUrl { get; set; }
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
 
-        public TimeSpan Hora {  get; set; }
+        public string Hora {  get; set; }
     }
 }
     

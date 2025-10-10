@@ -4,7 +4,7 @@ namespace Domain.Entities
     public class Payment
     {
         public Payment() { }
-        public Payment (int id, int userId, decimal amount, DateTime date)
+        public Payment (int id, int userId, decimal amount, string date)
         {
             Id = id;
             UserId = userId;
@@ -19,7 +19,7 @@ namespace Domain.Entities
         public User? User { get; set; } //relacion con usuario (1 a 1).
 
         public decimal Monto { get; set; }
-        public DateTime Fecha { get; set; } //ver si es data time
+        public string Fecha { get; set; } 
         public bool Pagado { get; set; }
     }
 }

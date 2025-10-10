@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Contracts.GymClass.Request
 {
     public class UpdateGymClassRequest 
@@ -13,8 +8,8 @@ namespace Contracts.GymClass.Request
         public string Descripcion { get; set; }
         public int DuracionMinutos { get; set; }
         public string ImageUrl { get; set; }
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
 
-        public TimeSpan Hora {  get; set; }
+        public string Hora {  get; set; }
     }
 }

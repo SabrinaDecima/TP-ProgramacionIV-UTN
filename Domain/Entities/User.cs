@@ -32,6 +32,7 @@ namespace Domain.Entities
         public List<UserClass>? UserClasses { get; set; } // relacion con las clases del usuario (1 a muchos)
         public int PlanId { get; set; }
         public Plan Plan { get; set; } // relacion con plan (1 a 1)
+
         public List<Payment>? Pagos { get; set; } // Relacion con pagos (1 a muchos)
 
     }

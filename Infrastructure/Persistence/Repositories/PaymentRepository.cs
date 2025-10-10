@@ -56,7 +56,7 @@ namespace Infrastructure.Repositories
                 .ToList();
         }
 
-        public List<Payment> GetPendingsPaymentsByUserId(int userId)
+        public List<Payment> GetPendingPaymentsByUserId(int userId)
         {
             return _context.Payments
                 .Include(p => p.User)

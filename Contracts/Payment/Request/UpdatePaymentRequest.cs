@@ -1,8 +1,7 @@
 ﻿
-
-namespace Contracts.Payment.Request
+namespace Contracts.GymClass.Request
 {
-    public class CreatePaymentRequest
+    public class UpdatePaymentRequest
     {
         public int UserId { get; set; }
 

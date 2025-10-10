@@ -7,7 +7,7 @@ namespace Domain.Entities
     public class GymClass
     {
         public GymClass() { }
-        public GymClass(int id, string name, string description, int durationMinute, string imageUrl, DateTime date, TimeSpan hour)
+        public GymClass(int id, string name, string description, int durationMinute, string imageUrl, string date, string hour)
         {
             Id = id;
             Nombre = name;
@@ -25,9 +25,9 @@ namespace Domain.Entities
         public string ImageUrl { get; set; }
 
         public List<UserClass> UserClasses { get; set; } = new(); //relcion con usuarios (1 a muchos)
-        public DateTime Fecha { get; set; }
+        public string Fecha { get; set; }
 
-        public TimeSpan Hora { get; set; }
+        public string Hora { get; set; }
 
     }
 }

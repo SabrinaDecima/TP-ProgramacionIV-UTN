@@ -14,7 +14,7 @@ namespace Application.Abstraction
 
         List<Payment> GetPaymentsByUserId(int userId);
 
-        List<Payment> GetPendingsPaymentsByUserId(int userId);
+        List<Payment> GetPendingPaymentsByUserId(int userId);
     }
 }
 
