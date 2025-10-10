@@ -1,9 +1,11 @@
-﻿using Domain.Entities;
+﻿using Contracts.Login.Request;
+using Contracts.User.Request;
+using Domain.Entities;
 
 
 namespace Application.Abstraction
 {
-    public interface IUserRepository
+    public interface IUserRepository : IBaseRepository<User>
     {
         List<User> GetUsers();
 
@@ -14,6 +16,8 @@ namespace Application.Abstraction
         bool UpdateUser(int id, User user);
 
         bool DeleteUser(int id);
+
+        User? GetByEmailAndPassword(LoginRequest request);
 
         User? GetByEmail(string email);
 

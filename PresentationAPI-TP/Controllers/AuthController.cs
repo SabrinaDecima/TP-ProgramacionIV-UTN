@@ -1,4 +1,6 @@
-﻿using Contracts.Login.Request;
+﻿using Application.Abstraction.ExternalServices;
+using Contracts.Login.Request;
+using Contracts.User.Request;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,46 +14,42 @@ namespace Api.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly GymDbContext _context;
-        private readonly IConfiguration _configuration;
 
-        public AuthController(GymDbContext context, IConfiguration configuration)
+        private readonly IAuthenticationService _authenticationService;
+
+        public AuthController(IAuthenticationService authenticationService)
         {
-            _context = context;
-            _configuration = configuration;
+            
+            _authenticationService = authenticationService;
+        }
+
+        [HttpPost("register")]
+
+        public ActionResult Register([FromBody] CreateUserRequest request)
+        {
+            var result = _authenticationService.Register(request);
+
+            if (result == "Usuario ya existe" || result == "Plan no encontrado" ||
+                result == "Rol no encontrado" || result == "Error al crear el usuario")
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
 
         [HttpPost("login")]
         public ActionResult<string> Login([FromBody] LoginRequest request)
         {
-            var user = _context.Users
-                .Include(x => x.Rol)
-                .FirstOrDefault(x => x.Email == request.Email && x.Contraseña == request.Password);
 
-            if (user == null)
+            var token = _authenticationService.Login(request);
+
+            if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Credenciales inválidas");
             }
 
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, user.Email),
-                new Claim(ClaimTypes.Role, user.Rol.Nombre)
-            };
-
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddHours(1),
-                signingCredentials: creds);
-
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return Ok(tokenString);
+            return Ok(token);
         }
     }
 }
