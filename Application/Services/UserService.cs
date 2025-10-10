@@ -26,41 +26,7 @@ namespace Application.Services
             _roleRepository = roleRepository;
         }
 
-        public bool CreateUser(CreateUserRequest request)
-        {
-            var existingUser = _userRepository.GetByEmail(request.Email);
-            if (existingUser != null)
-            {
-                return false; // usuario ya existe
-            }
 
-            // Obtener Plan real desde la base de datos
-            var plan = _planRepository.GetPlanById(request.PlanId);
-            if (plan == null)
-            {
-                return false; // plan no encontrado
-            }
-
-            // Obtener Role real desde la base de datos
-            var role = _roleRepository.GetById(request.RoleId);
-            if (role == null)
-            {
-                return false; // rol no encontrado
-            }
-
-            var newUser = new User(
-                0,
-                request.Nombre,
-                request.Apellido,
-                request.Email,
-                request.Telefono,
-                request.Contraseña,
-                plan,
-                role
-            );
-
-            return _userRepository.CreateUser(newUser);
-        }
 
         public bool DeleteUser(int id)
         {

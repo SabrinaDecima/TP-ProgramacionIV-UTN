@@ -1,5 +1,9 @@
 ﻿using Application.Abstraction;
 using Application.Abstraction.ExternalServices;
+using Contracts.Login.Request;
+using Contracts.User.Request;
+using Domain.Entities;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,19 +15,24 @@ namespace Infrastructure.ExternalServices;
 public class AuthenticationService : IAuthenticationService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IPlanRepository _planRepository;
+    private readonly IRoleRepository _roleRepository;
     private readonly IConfiguration _configuration;
 
-    public AuthenticationService(IUserRepository userRepository, IConfiguration configuration)
+    public AuthenticationService(IUserRepository userRepository, 
+        IPlanRepository planRepository, IRoleRepository roleRepository, IConfiguration configuration)
     {
         _userRepository = userRepository;
+        _planRepository = planRepository;
+        _roleRepository = roleRepository;
         _configuration = configuration;
     }
 
-    public string Login(string email, string password)
+    public string Login(LoginRequest request)
     {
-        var user = _userRepository.GetByEmail(email);
+        var user = _userRepository.GetByEmailAndPassword(request);
 
-        if (user == null || user.Contraseña != password)
+        if (user == null )
         {
             return string.Empty; 
         }
@@ -54,6 +63,51 @@ public class AuthenticationService : IAuthenticationService
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: creds);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return tokenString;
+    }
+
+    public string Register(CreateUserRequest request)
+    {
+        var existingUser = _userRepository.GetByEmail(request.Email);
+
+        if(existingUser != null)
+        {
+            return "Usuario ya existe";
+        }
+
+        var plan = _planRepository.GetPlanById(request.PlanId);
+
+        if(plan == null)
+        {
+            return "Plan no encontrado";
+        }
+
+        var role = _roleRepository.GetById(request.RoleId);
+
+        if(role == null)
+        {
+            return "Rol no encontrado";
+        }
+
+        var newUser = new User(
+            0,
+            request.Nombre,
+            request.Apellido,
+            request.Email,
+            request.Telefono,
+            request.Contraseña,
+            plan,
+            role
+           );
+
+         var created = _userRepository.CreateUser(newUser);
+
+        if(!created)
+            return "Error al crear el usuario";
+
+        return "Usuario registrado exitosamente";
+        
     }
 }

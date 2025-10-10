@@ -1,14 +1,16 @@
 ﻿using Application.Abstraction;
+using Contracts.Login.Request;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : BaseRepository<User>, IUserRepository
     {
 
         private readonly GymDbContext _context;
 
-        public UserRepository(GymDbContext context)
+        public UserRepository(GymDbContext context) : base(context)
         {
             _context = context;
         }
@@ -45,9 +47,16 @@ namespace Infrastructure.Persistence.Repositories
 
         }
 
-        public User? GetByEmail (string email)
+        public User? GetByEmail(string email)
         {
             return _context.Users.FirstOrDefault(u => u.Email == email);
+        }
+
+        public User? GetByEmailAndPassword (LoginRequest request)
+        {
+            return _context.Users
+                .Include( x => x.Rol)
+                .FirstOrDefault( x => x.Email == request.Email && x.Contraseña == request.Password);
         }
 
  
