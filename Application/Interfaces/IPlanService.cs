@@ -11,11 +11,8 @@ namespace Application.Interfaces
 
         PlanResponse? GetById(int id);
 
-        bool CreatePlan(CreatePlanRequest request);
-
         bool UpdatePlan(UpdatePlanRequest request);
 
-        bool DeletePlan(int id);
     }
 }
 

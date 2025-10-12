@@ -20,17 +20,12 @@ namespace Infrastructure.Repositories
             return _context.Plans.ToList();
         }
 
-        public Plan? GetPlanById(int id)
+        public Plan? GetPlanById(int? id)
         {
-            return _context.Plans.Find(id);
+            if (id == null) return null;
+            return _context.Plans.Find(id.Value);
         }
 
-        public Plan CreatePlan(Plan plan)
-        {
-            _context.Plans.Add(plan);
-            _context.SaveChanges();
-            return plan;
-        }
 
         public bool UpdatePlan(int planId, Plan plan)
         {
@@ -38,15 +33,5 @@ namespace Infrastructure.Repositories
             return _context.SaveChanges() > 0;
         }
 
-        public bool DeletePlan(int id)
-        {
-            var entity = _context.Plans.Find(id);
-            if (entity != null)
-            {
-                _context.Plans.Remove(entity);
-                return _context.SaveChanges() > 0;
-            }
-            return false;
-        }
     }
 }

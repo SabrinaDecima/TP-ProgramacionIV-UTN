@@ -17,28 +17,6 @@ namespace Application.Services.Implementations
             _planRepository = planRepository;
         }
 
-        public bool CreatePlan(CreatePlanRequest request)
-        {
-            if (!Enum.IsDefined(typeof(TypePlan), request.Tipo) || request.Precio < 0)
-            {
-                return false;
-            }
-
-            var existingPlans = _planRepository.GetAll();
-            if (existingPlans.Any(p => p.Tipo == request.Tipo))
-            {
-                return false;
-            }
-
-            var newPlan = new Plan
-            {
-                Tipo = request.Tipo,
-                Precio = request.Precio,
-            };
-
-            _planRepository.CreatePlan(newPlan);
-            return true;
-        }
 
         public bool UpdatePlan(UpdatePlanRequest request)
         {
@@ -57,10 +35,7 @@ namespace Application.Services.Implementations
 
         }
 
-        public bool DeletePlan(int id)
-        {
-            return _planRepository.DeletePlan(id);
-        }
+
 
         public List<PlanResponse> GetAll()
         {

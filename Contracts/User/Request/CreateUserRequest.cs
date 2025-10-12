@@ -23,7 +23,7 @@ namespace Contracts.User.Request
         [Required]
         public string Contraseña { get; set; }
 
-        public int PlanId { get; set; }
+        public int? PlanId { get; set; }
 
         public int RoleId { get; set; }
         

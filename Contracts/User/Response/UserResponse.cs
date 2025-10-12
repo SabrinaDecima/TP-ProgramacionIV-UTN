@@ -11,7 +11,7 @@
 
         public string Telefono { get; set; }
 
-        public int PlanId { get; set; }
+        public int? PlanId { get; set; }
 
     }
 }

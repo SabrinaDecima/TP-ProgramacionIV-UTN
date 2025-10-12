@@ -7,12 +7,11 @@ namespace Application.Abstraction
     {
         List<Plan> GetAll();
 
-        Plan? GetPlanById(int id);
+        Plan? GetPlanById(int? id);
 
-        Plan CreatePlan(Plan plan);
 
         bool UpdatePlan(int id, Plan plan);
 
-        bool DeletePlan(int id);
+
     }
 }

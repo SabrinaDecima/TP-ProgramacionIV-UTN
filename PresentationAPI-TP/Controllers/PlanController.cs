@@ -31,26 +31,6 @@ namespace PresentationAPI_TP.Controllers
             return Ok(plan);
         }
 
-        [HttpPost]
-        public IActionResult CreatePlan([FromBody] CreatePlanRequest request)
-        {
-            if (request == null)
-                return BadRequest("Los datos del plan son requeridos.");
-
-            // Validación del enum
-            if (!Enum.IsDefined(typeof(TypePlan), request.Tipo))
-                return BadRequest("El tipo de plan no es válido.");
-
-            if (request.Precio < 0)
-                return BadRequest("El precio no puede ser negativo.");
-
-            var created = _planService.CreatePlan(request);
-
-            if (!created)
-                return BadRequest("No se pudo crear el plan. Puede que ya exista un plan con el mismo tipo.");
-
-            return Ok("Plan creado correctamente.");
-        }
 
 
         [HttpPut("{id}")]
@@ -75,16 +55,6 @@ namespace PresentationAPI_TP.Controllers
             return Ok("Plan actualizado correctamente.");
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeletePlan([FromRoute] int id)
-        {
-            var deleted = _planService.DeletePlan(id);
-
-            if (!deleted)
-                return NotFound("Plan no encontrado.");
-
-            return Ok("Plan eliminado correctamente.");
-        }
 
     }
 }

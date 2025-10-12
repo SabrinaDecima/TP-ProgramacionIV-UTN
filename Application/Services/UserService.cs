@@ -51,7 +51,7 @@ namespace Application.Services
                     Apellido = u.Apellido,
                     Email = u.Email,
                     Telefono = u.Telefono,
-                    PlanId = u.PlanId,
+                    PlanId = (int)u.PlanId,
                }).ToList();
 
             return userList;
@@ -70,7 +70,7 @@ namespace Application.Services
                 Apellido = user.Apellido,
                 Email = user.Email,
                 Telefono = user.Telefono,
-                PlanId = user.PlanId,
+                PlanId = (int)user.PlanId,
             };
         }
 
@@ -96,7 +96,7 @@ namespace Application.Services
                 Apellido = u.Apellido,
                 Email = u.Email,
                 Telefono = u.Telefono,
-                PlanId = u.PlanId
+                PlanId = (int)u.PlanId
             }).ToList();
         }
 
@@ -143,11 +143,23 @@ namespace Application.Services
                 return false;
 
             
-            var plan = _planRepository.GetPlanById(request.PlanId);
             var role = _roleRepository.GetById(request.RoleId);
-
-            if (plan == null || role == null)
+            if (role == null)
                 return false;
+
+            
+            Plan? plan = null;
+            if (request.RoleId == (int)TypeRole.Socio && request.PlanId.HasValue)
+            {
+                plan = _planRepository.GetPlanById(request.PlanId);
+                if (plan == null)
+                    return false;
+            }
+            else if (request.RoleId == (int)TypeRole.Socio && !request.PlanId.HasValue)
+            {
+                return false; 
+            }
+            
 
             var user = new User
             {
@@ -155,7 +167,7 @@ namespace Application.Services
                 Apellido = request.Apellido,
                 Email = request.Email,
                 Telefono = request.Telefono,
-                Contraseña = request.Contraseña, // hashear
+                Contraseña = request.Contraseña,
                 PlanId = request.PlanId,
                 RoleId = request.RoleId,
                 Plan = plan,
@@ -163,6 +175,27 @@ namespace Application.Services
             };
 
             return _userRepository.CreateUser(user);
+        }
+
+
+        public bool ChangeUserPlan(int userId, int newPlanId)
+        {
+            
+            var newPlan = _planRepository.GetPlanById(newPlanId);
+            if (newPlan == null) return false;
+
+            
+            var user = _userRepository.GetById(userId);
+            if (user == null) return false;
+
+           
+            if (user.PlanId == newPlanId) return true;
+
+           
+            user.PlanId = newPlanId;
+            user.Plan = newPlan;
+
+            return _userRepository.UpdateUser(userId, user);
         }
     }
 }

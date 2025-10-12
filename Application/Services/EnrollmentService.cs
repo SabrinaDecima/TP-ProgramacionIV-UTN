@@ -92,10 +92,11 @@ namespace Application.Services
 
         private bool HasActivePlan(User user)
         {
-            var lastPaidPayment = user.Pagos
+            if (user.RoleId != (int)TypeRole.Socio)
+                return true;
+            var lastPaidPayment = user.Pagos?
                 .Where(p => p.Pagado)
-                .OrderByDescending(p => p.Fecha)
-                .FirstOrDefault();
+                .OrderByDescending(p => p.Fecha).FirstOrDefault();
 
             if (lastPaidPayment == null) return false;
 
