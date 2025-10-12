@@ -42,46 +42,35 @@ namespace PresentationAPI_TP.Controllers
 
         [HttpPost]
 
-        //public IActionResult Create([FromBody] CreateUserRequest request)
-        //{
-        //    var result = _userService.CreateUser(request);
+        public IActionResult Create([FromBody] CreateUserRequest request)
+        {
+            var result = _userService.CreateUser(request);
 
-        //    if (!result)
-        //    {
-        //        return BadRequest("No se pudo crear el usuario. Verifica completar los campos");
+            if (!result)
+           {
+               return BadRequest("No se pudo crear el usuario. Verifica completar los campos");
 
-        //    }
+           }
 
-        //    return Ok("Usuario creado correctamente");
-        //}
+            return Ok("Usuario creado correctamente");
+        }
+
+
 
         [HttpPut("{id}")]
-
-        public IActionResult Update([FromRoute]int id, [FromBody] UpdateUserRequest request)
+        public IActionResult Update([FromRoute] int id, [FromBody] UpdateUserRequest request)
         {
-            var plan = _planService.GetById(request.PlanId);
+           
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            if(plan == null)
-            {
-                return BadRequest("El planId proporcionado no es valido");
-            }
+            
+            var updated = _userService.UpdateUser(id, request);
 
-            var user = _userService.GetById(id);
+            if (!updated)
+                return NotFound("Usuario no encontrado o datos inválidos (planId incorrecto).");
 
-
-            if(user == null)
-            {
-                return NotFound("Usuario no encontrado");
-            }
-
-            var updatedUser = _userService.UpdateUser(id, request);
-
-            if (!updatedUser)
-            {
-                return NotFound("No se pudo actualizar el usuario");
-            }
-
-            return Ok("Usuario actualizado");
+            return Ok("Usuario actualizado correctamente.");
         }
     }
 }

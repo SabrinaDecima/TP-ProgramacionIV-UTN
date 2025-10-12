@@ -24,10 +24,10 @@ namespace Domain.Entities
         public int DuracionMinutos { get; set; }
         public string ImageUrl { get; set; }
 
-        public List<UserClass> UserClasses { get; set; } = new(); //relcion con usuarios (1 a muchos)
         public string Fecha { get; set; }
 
         public string Hora { get; set; }
+        public List<User> Users { get; set; } = new(); //relcion con usuarios 
 
     }
 }

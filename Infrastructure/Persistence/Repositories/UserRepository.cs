@@ -59,71 +59,26 @@ namespace Infrastructure.Persistence.Repositories
                 .FirstOrDefault( x => x.Email == request.Email && x.Contraseña == request.Password);
         }
 
- 
+
         public User? GetUserWithPlan(int id)
         {
             return _context.Users
-                .Where(u => u.Id == id)
-                .Select(u => new User
-                {
-                    Id = u.Id,
-                    Nombre = u.Nombre,
-                    Apellido = u.Apellido,
-                    Email = u.Email,
-                    Telefono = u.Telefono,
-                    Contraseña = u.Contraseña,
-                    RoleId = u.RoleId,
-                    Rol = u.Rol,
-                    PlanId = u.PlanId,
-                    Plan = u.Plan,
-                    UserClasses = u.UserClasses,
-                    Pagos = u.Pagos
-                })
-                .FirstOrDefault();
+                .Include(u => u.Plan)
+                .FirstOrDefault(u => u.Id == id);
         }
 
         public User? GetUserWithClasses(int id)
         {
             return _context.Users
-                .Where(u => u.Id == id)
-                .Select(u => new User
-                {
-                    Id = u.Id,
-                    Nombre = u.Nombre,
-                    Apellido = u.Apellido,
-                    Email = u.Email,
-                    Telefono = u.Telefono,
-                    Contraseña = u.Contraseña,
-                    RoleId = u.RoleId,
-                    Rol = u.Rol,
-                    PlanId = u.PlanId,
-                    Plan = u.Plan,
-                    UserClasses = u.UserClasses,
-                    Pagos = u.Pagos
-                })
-                .FirstOrDefault();
+                .Include(u => u.GymClasses)
+                .FirstOrDefault(u => u.Id == id);
         }
 
         public User? GetUserWithPayment(int id)
         {
             return _context.Users
-                .Where(u => u.Id == id)
-                .Select(u => new User
-                {
-                    Id = u.Id,
-                    Nombre = u.Nombre,
-                    Apellido = u.Apellido,
-                    Email = u.Email,
-                    Telefono = u.Telefono,
-                    Contraseña = u.Contraseña,
-                    RoleId = u.RoleId,
-                    Rol = u.Rol,
-                    PlanId = u.PlanId,
-                    Plan = u.Plan,
-                    UserClasses = u.UserClasses,
-                    Pagos = u.Pagos
-                })
-                .FirstOrDefault();
+                .Include(u => u.Pagos)
+                .FirstOrDefault(u => u.Id == id);
         }
 
         public bool ChangeUserRole(int id, string newRole)
@@ -142,6 +97,14 @@ namespace Infrastructure.Persistence.Repositories
             user.Rol = role;
             _context.Users.Update(user);
             return _context.SaveChanges() > 0;
+        }
+
+        public User? GetUserWithClassesAndPayments(int id)
+        {
+            return _context.Users
+                .Include(u => u.GymClasses)
+                .Include(u => u.Pagos)
+                .FirstOrDefault(u => u.Id == id);
         }
 
     }

@@ -29,7 +29,7 @@ namespace Domain.Entities
         public int RoleId { get; set; }
         public Role Rol { get; set; }  // relacion con rol (1 a 1)
         
-        public List<UserClass>? UserClasses { get; set; } // relacion con las clases del usuario (1 a muchos)
+        public List<GymClass>? GymClasses { get; set; } // relacion con las clases 
         public int PlanId { get; set; }
         public Plan Plan { get; set; } // relacion con plan (1 a 1)
 

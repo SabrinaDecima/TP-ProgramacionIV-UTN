@@ -14,25 +14,23 @@ namespace Infrastructure.Persistence
         public DbSet<Plan> Plans { get; set; }
         public DbSet<Role > Roles { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<UserClass > UserClasses { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuración de UserClass
-            modelBuilder.Entity<UserClass>()
-                .HasKey(uc => new { uc.UserId, uc.GymClassId });
+            // Configuración de clases
+            base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<UserClass>()
-                .HasOne(uc => uc.User)
-                .WithMany(u => u.UserClasses)
-                .HasForeignKey(uc => uc.UserId);
-
-            modelBuilder.Entity<UserClass>()
-                .HasOne(uc => uc.GymClass)
-                .WithMany(gc => gc.UserClasses)
-                .HasForeignKey(uc => uc.GymClassId);
+            // relación muchos-a-muchos SIN entidad intermedia
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.GymClasses)
+                .WithMany(gc => gc.Users)
+                .UsingEntity(j => j
+                    .ToTable("UserGymClass") 
+                    .HasKey("UsersId", "GymClassesId") 
+                );
 
             // Configuración de Role
             modelBuilder.Entity<Role>()
@@ -79,7 +77,7 @@ namespace Infrastructure.Persistence
             // Seed de Usuarios
             modelBuilder.Entity<User>().HasData(
                 new User { Id = 1, Nombre = "cliente", Apellido = "uno", Email = "cliente@demo.com", Telefono = "1234", Contraseña = "1234", RoleId = (int)TypeRole.Socio, PlanId = (int)TypePlan.Basic },
-                new User { Id = 2, Nombre = "admin", Apellido = "demo", Email = "admin@demo.com", Telefono = "5678", Contraseña = "1234", RoleId = (int)TypeRole.Administrador, PlanId = (int)TypePlan.Premium },
+                new User { Id = 2, Nombre = "admin", Apellido = "demo", Email = "admin@demo.com", Telefono = "5678", Contraseña = "1234", RoleId = (int)TypeRole.Administrador, PlanId = (int)TypePlan.Premium },   // si sos admin o super admin no deberia tener un plan
                 new User { Id = 3, Nombre = "superadmin", Apellido = "demo", Email = "superadmin@demo.com", Telefono = "9999", Contraseña = "1234", RoleId = (int)TypeRole.SuperAdministrador, PlanId = (int)TypePlan.Elite }
             );
 

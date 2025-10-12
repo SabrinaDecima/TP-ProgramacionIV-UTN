@@ -28,5 +28,6 @@ namespace Application.Abstraction
         User? GetUserWithPayment(int id);
 
         bool ChangeUserRole(int id, string newRole);
+        User? GetUserWithClassesAndPayments(int id);
     }
 }

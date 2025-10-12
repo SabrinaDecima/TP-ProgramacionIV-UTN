@@ -1,4 +1,5 @@
-﻿using Application.Abstraction;
+﻿
+using Application.Abstraction;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -17,16 +18,14 @@ namespace Infrastructure.Repositories
         public List<GymClass> GetAll()
         {
             return _context.GymClasses
-                .Include(static gc => gc.UserClasses)     // ← Opcional: si necesitas socios
-                .ThenInclude(uc => uc.User)        // ← Si necesitas datos del User
+                .Include(gc => gc.Users) 
                 .ToList();
         }
 
         public GymClass? GetById(int id)
         {
             return _context.GymClasses
-                .Include(gc => gc.UserClasses)
-                .ThenInclude(uc => uc.User)
+                .Include(gc => gc.Users) 
                 .FirstOrDefault(gc => gc.Id == id);
         }
 
@@ -55,7 +54,10 @@ namespace Infrastructure.Repositories
 
         public bool DeleteGymClass(int id)
         {
-            var gymClass = _context.GymClasses.Find(id);
+            var gymClass = _context.GymClasses
+                .Include(gc => gc.Users) 
+                .FirstOrDefault(g => g.Id == id);
+
             if (gymClass == null) return false;
 
             _context.GymClasses.Remove(gymClass);
