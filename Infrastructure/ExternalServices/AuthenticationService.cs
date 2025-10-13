@@ -3,6 +3,7 @@ using Application.Abstraction.ExternalServices;
 using Contracts.Login.Request;
 using Contracts.User.Request;
 using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -18,23 +19,34 @@ public class AuthenticationService : IAuthenticationService
     private readonly IPlanRepository _planRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IConfiguration _configuration;
+    private readonly IPasswordHasher<User> _passwordHasher;
 
     public AuthenticationService(IUserRepository userRepository, 
-        IPlanRepository planRepository, IRoleRepository roleRepository, IConfiguration configuration)
+        IPlanRepository planRepository, IRoleRepository roleRepository,
+        IConfiguration configuration,
+        IPasswordHasher<User> passwordHasher)
     {
         _userRepository = userRepository;
         _planRepository = planRepository;
         _roleRepository = roleRepository;
         _configuration = configuration;
+        _passwordHasher = passwordHasher;
     }
 
     public string Login(LoginRequest request)
     {
-        var user = _userRepository.GetByEmailAndPassword(request);
+        var user = _userRepository.GetByEmail(request.Email);
 
         if (user == null )
         {
             return string.Empty; 
+        }
+
+        var result = _passwordHasher.VerifyHashedPassword(user, user.Contraseña, request.Password);
+
+        if(result == PasswordVerificationResult.Failed)
+        {
+            return null;
         }
 
         var roleName = user.Rol?.Nombre ?? "User"; 
@@ -91,13 +103,15 @@ public class AuthenticationService : IAuthenticationService
             return "Rol no encontrado";
         }
 
+        var hashedPassword = _passwordHasher.HashPassword(null, request.Contraseña);
+
         var newUser = new User(
             0,
             request.Nombre,
             request.Apellido,
             request.Email,
             request.Telefono,
-            request.Contraseña,
+            hashedPassword,
             plan,
             role
            );

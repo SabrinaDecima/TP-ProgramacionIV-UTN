@@ -42,18 +42,18 @@ namespace PresentationAPI_TP.Controllers
 
         [HttpPost]
 
-        public IActionResult Create([FromBody] CreateUserRequest request)
-        {
-            var result = _userService.CreateUser(request);
+        //public IActionResult Create([FromBody] CreateUserRequest request)
+        //{
+        //    var result = _userService.CreateUser(request);
 
-            if (!result)
-           {
-               return BadRequest("No se pudo crear el usuario. Verifica completar los campos");
+        //    if (!result)
+        //   {
+        //       return BadRequest("No se pudo crear el usuario. Verifica completar los campos");
 
-           }
+        //   }
 
-            return Ok("Usuario creado correctamente");
-        }
+        //    return Ok("Usuario creado correctamente");
+        //}
 
 
 
