@@ -11,8 +11,6 @@ namespace Application.Abstraction
 
         User? GetById(int id);
 
-        bool CreateUser(User user);
-
         bool UpdateUser(int id, User user);
 
         bool DeleteUser(int id);

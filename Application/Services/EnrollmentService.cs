@@ -33,9 +33,6 @@ namespace Application.Services
                 if (gymClass == null)
                     return new EnrollmentResponse { Message = "Clase no encontrada." };
 
-                if (!IsFutureOrToday(gymClass.Fecha))
-                    return new EnrollmentResponse { Message = "No se puede inscribir en clases pasadas." };
-
                 if (!HasActivePlan(user))
                     return new EnrollmentResponse { Message = "El usuario no tiene un plan activo." };
 
@@ -81,14 +78,6 @@ namespace Application.Services
 
         // validaciones
 
-        private bool IsFutureOrToday(string dateStr)
-        {
-
-            if (!DateTime.TryParseExact(dateStr, "yyyy-MM-dd", null, DateTimeStyles.None, out var classDate))
-                return false;
-
-            return classDate.Date >= DateTime.Today;
-        }
 
         private bool HasActivePlan(User user)
         {

@@ -15,8 +15,6 @@ namespace Application.Interfaces
 
         UserResponse? GetById(int id);
 
-        bool CreateUser(CreateUserRequest request);
-
         bool UpdateUser(int id, UpdateUserRequest request);
 
         bool DeleteUser(int id);

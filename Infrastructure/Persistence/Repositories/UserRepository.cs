@@ -24,12 +24,7 @@ namespace Infrastructure.Persistence.Repositories
             return _context.Users.Find(id);
         }
 
-        public bool CreateUser(User user)
-        {
-            _context.Users.Add(user);
-            return _context.SaveChanges() > 0;
 
-        }
 
         public bool UpdateUser(int id, User user)
         {

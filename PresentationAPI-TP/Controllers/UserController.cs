@@ -40,21 +40,6 @@ namespace PresentationAPI_TP.Controllers
             return Ok(user);
         }
 
-        [HttpPost]
-
-        //public IActionResult Create([FromBody] CreateUserRequest request)
-        //{
-        //    var result = _userService.CreateUser(request);
-
-        //    if (!result)
-        //   {
-        //       return BadRequest("No se pudo crear el usuario. Verifica completar los campos");
-
-        //   }
-
-        //    return Ok("Usuario creado correctamente");
-        //}
-
 
 
         [HttpPut("{id}")]
