@@ -19,18 +19,22 @@ namespace WebApi.Controllers
         public IActionResult Enroll([FromBody] EnrollUserRequest request)
         {
             var response = _enrollmentService.EnrollUser(request);
-            if (response.Message.Contains("exitosa") || response.Message.Contains("cancelada"))
-                return Ok(response);
-            return BadRequest(response);
+            
+            if (!response)
+            {
+                return BadRequest("No se ha podido realizar la inscripcion a clase.");
+            }
+
+            return Ok("Inscripción exitosa");
         }
 
         [HttpDelete("unenroll")]
         public IActionResult Unenroll([FromBody] EnrollUserRequest request)
         {
-            var response = _enrollmentService.UnenrollUser(request);
-            if (response.Message.Contains("cancelada") || response.Message.Contains("exitosa"))
-                return Ok(response);
-            return BadRequest(response);
+            //var response = _enrollmentService.UnenrollUser(request);
+            //if (response.Message.Contains("cancelada") || response.Message.Contains("exitosa"))
+            //    return Ok(response);
+            return BadRequest();
         }
     }
 }

@@ -107,7 +107,31 @@ namespace Infrastructure.Persistence.Repositories
                 .FirstOrDefault(u => u.Id == id);
         }
 
+        public bool EnrollUserToClass(int userId, int gymClassId)
+        {
+            var user = _context.Users
+                .Include(u => u.GymClasses)
+                .FirstOrDefault(u => u.Id == userId);
 
+            var gymClass = _context.GymClasses
+                .Include(g => g.Users)
+                .FirstOrDefault(g => g.Id == gymClassId);
 
+            if (user == null || gymClass == null)
+                return false;
+
+            user.GymClasses ??= new List<GymClass>();
+            gymClass.Users ??= new List<User>();
+
+            if (!user.GymClasses.Contains(gymClass))
+                user.GymClasses.Add(gymClass);
+            if (!gymClass.Users.Contains(user))
+                gymClass.Users.Add(user);
+
+            return _context.SaveChanges() > 0;
+
+        }
+
+       
     }
 }

@@ -5,7 +5,7 @@ namespace Application.Interfaces
 {
     public interface IEnrollmentService
     {
-        EnrollmentResponse EnrollUser(EnrollUserRequest request);
-        EnrollmentResponse UnenrollUser(EnrollUserRequest request);
+        bool EnrollUser(EnrollUserRequest request);
+        bool UnenrollUser(EnrollUserRequest request);
     }
 }

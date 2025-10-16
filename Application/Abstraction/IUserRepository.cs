@@ -1,4 +1,5 @@
-﻿using Contracts.Login.Request;
+﻿using Contracts.Enrollment.Request;
+using Contracts.Login.Request;
 using Contracts.User.Request;
 using Domain.Entities;
 
@@ -29,5 +30,6 @@ namespace Application.Abstraction
 
         bool ChangeUserRole(int id, string newRole);
         User? GetUserWithClassesAndPayments(int id);
+        bool EnrollUserToClass(int userId, int gymClassId);
     }
 }
