@@ -31,10 +31,15 @@ namespace WebApi.Controllers
         [HttpDelete("unenroll")]
         public IActionResult Unenroll([FromBody] EnrollUserRequest request)
         {
-            //var response = _enrollmentService.UnenrollUser(request);
-            //if (response.Message.Contains("cancelada") || response.Message.Contains("exitosa"))
-            //    return Ok(response);
-            return BadRequest();
+            var response = _enrollmentService.UnenrollUser(request);
+
+
+            if (!response)
+            {
+                return BadRequest("No se ha podido realizar la desinscripcion a clase.");
+            }
+
+            return Ok("Desinscripción exitosa");
         }
     }
 }

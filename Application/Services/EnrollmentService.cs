@@ -61,27 +61,8 @@ namespace Application.Services
 
         public bool UnenrollUser(EnrollUserRequest request)
         {
-            //try
-            //{
-            //    var user = _userRepository.GetUserWithClassesAndPayments(request.UserId);
-            //    if (user == null)
-            //        return new EnrollmentResponse { Message = "Usuario no encontrado." };
 
-            //    var gymClass = user.GymClasses.FirstOrDefault(gc => gc.Id == request.GymClassId);
-            //    if (gymClass == null)
-            //        return new EnrollmentResponse { Message = "El usuario no está inscrito en esta clase." };
-
-            //    user.GymClasses.Remove(gymClass);
-            //    _userRepository.UpdateUser(user.Id, user);
-
-            //    return new EnrollmentResponse { Message = "Inscripción cancelada." };
-            //}
-            //catch (Exception)
-            //{
-            //    return new EnrollmentResponse { Message = "Error al cancelar la inscripción." };
-            //}
-
-            return true;
+            return _userRepository.UnEnrollUserToClass(request.UserId, request.GymClassId);
         }
 
         // validaciones
@@ -111,18 +92,7 @@ namespace Application.Services
         //    return expiryDate.Date >= DateTime.Today;
         //}
 
-    //    private bool CanEnrollMoreClasses(User user, string classDateStr)
-    //    {
-    //        if (!DateTime.TryParseExact(classDateStr, "yyyy-MM-dd", null, DateTimeStyles.None, out var classDate))
-    //            return true; // o false, según política
-
-    //        int maxClasses = user.PlanId switch
-    //        {
-    //            1 => 2,  // Basic
-    //            2 => 5,  // Premium
-    //            3 => 10, // Elite
-    //            _ => 2
-    //        };
+      
 
     //        // Calcular semana de la clase (lunes a domingo)
     //        var diff = (7 + (classDate.DayOfWeek - DayOfWeek.Monday)) % 7;

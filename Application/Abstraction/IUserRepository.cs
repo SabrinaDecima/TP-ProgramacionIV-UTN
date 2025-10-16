@@ -31,5 +31,7 @@ namespace Application.Abstraction
         bool ChangeUserRole(int id, string newRole);
         User? GetUserWithClassesAndPayments(int id);
         bool EnrollUserToClass(int userId, int gymClassId);
+
+        bool UnEnrollUserToClass(int userId, int gymClassId);
     }
 }
