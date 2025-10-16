@@ -98,7 +98,11 @@ namespace Application.Services
         private bool CanEnrollMoreClasses(User user, string classDateStr)
         {
             if (!DateTime.TryParseExact(classDateStr, "yyyy-MM-dd", null, DateTimeStyles.None, out var classDate))
-                return true; // o false, según política
+                return true;
+
+            // Obtener la semana de la clase que se quiere inscribir
+            int targetWeek = GetWeekOfYear(classDate);
+            int targetYear = classDate.Year;
 
             int maxClasses = user.PlanId switch
             {
@@ -108,21 +112,27 @@ namespace Application.Services
                 _ => 2
             };
 
-            // Calcular semana de la clase (lunes a domingo)
-            var diff = (7 + (classDate.DayOfWeek - DayOfWeek.Monday)) % 7;
-            var startOfWeek = classDate.AddDays(-diff).Date;
-            var endOfWeek = startOfWeek.AddDays(7).AddTicks(-1);
-
+            // Contar cuántas clases YA TIENE el usuario en ESA SEMANA
             var enrolledThisWeek = user.GymClasses
                 .Where(gc =>
                 {
                     if (!DateTime.TryParseExact(gc.Fecha, "yyyy-MM-dd", null, DateTimeStyles.None, out var gcDate))
                         return false;
-                    return gcDate >= startOfWeek && gcDate <= endOfWeek;
+                    return GetWeekOfYear(gcDate) == targetWeek && gcDate.Year == targetYear;
                 })
                 .Count();
 
             return enrolledThisWeek < maxClasses;
+        }
+
+        private int GetWeekOfYear(DateTime date)
+        {
+            var calendar = System.Globalization.CultureInfo.InvariantCulture.Calendar;
+            return calendar.GetWeekOfYear(
+                date,
+                System.Globalization.CalendarWeekRule.FirstFourDayWeek,
+                DayOfWeek.Monday // Lunes como primer día de la semana
+            );
         }
     }
 }

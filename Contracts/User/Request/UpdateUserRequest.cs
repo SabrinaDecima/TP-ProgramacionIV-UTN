@@ -26,6 +26,5 @@ namespace Contracts.User.Request
 
         public int PlanId { get; set; }
 
-        public int RoleId { get; set; }
     }
 }
