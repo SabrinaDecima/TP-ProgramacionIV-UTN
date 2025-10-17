@@ -107,7 +107,76 @@ namespace Infrastructure.Persistence.Repositories
                 .FirstOrDefault(u => u.Id == id);
         }
 
+        public bool EnrollUserToClass(int userId, int gymClassId)
+        {
+            var user = _context.Users
+                .Include(u => u.GymClasses)
+                .FirstOrDefault(u => u.Id == userId);
 
+            var gymClass = _context.GymClasses
+                .Include(g => g.Users)
+                .FirstOrDefault(g => g.Id == gymClassId);
 
+            if (user == null || gymClass == null)
+                return false;
+
+            if (!CanEnroll(user))
+                return false;  //no puede por limite de plan
+
+            user.GymClasses ??= new List<GymClass>();
+            gymClass.Users ??= new List<User>();
+
+            if (!user.GymClasses.Contains(gymClass))
+                user.GymClasses.Add(gymClass);
+            if (!gymClass.Users.Contains(user))
+                gymClass.Users.Add(user);
+
+            return _context.SaveChanges() > 0;
+
+        }
+
+        public bool UnEnrollUserToClass(int userId, int gymClassId)
+        {
+            var user = _context.Users
+                .Include(u => u.GymClasses)
+                .FirstOrDefault(u => u.Id == userId);
+
+            var gymClass = _context.GymClasses
+                .Include(g => g.Users)
+                .FirstOrDefault(g => g.Id == gymClassId);
+
+            if (user == null || gymClass == null)
+                return false;
+
+            user.GymClasses ??= new List<GymClass>();
+            gymClass.Users ??= new List<User>();
+
+            if (user.GymClasses.Contains(gymClass))
+                user.GymClasses.Remove(gymClass);
+            if (gymClass.Users.Contains(user))
+                gymClass.Users.Remove(user);
+
+            return _context.SaveChanges() > 0;
+        }
+
+        private bool CanEnroll(User user)
+        {
+            if (user.PlanId == null)
+                return false;
+
+            var limite = user.PlanId switch
+            {
+                1 => 1, //plan basico 1 clase por semana
+                2 => 2, //plan premium 2
+                3 => 3, //plan elite 3
+            };
+
+            if ((user.GymClasses?.Count ?? 0) >= limite)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
