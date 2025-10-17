@@ -29,6 +29,53 @@ namespace Application.Services
             _roleRepository = roleRepository;
         }
 
+        public bool CreateUser(CreateUserRequest request)
+        {
+            
+            if (string.IsNullOrWhiteSpace(request.Nombre) ||
+                string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.Contraseña))
+                return false;
+
+            
+            if (_userRepository.GetByEmail(request.Email) != null)
+                return false;
+
+            
+            var role = _roleRepository.GetById(request.RoleId);
+            if (role == null)
+                return false;
+
+            
+            Plan? plan = null;
+            if (request.RoleId == (int)TypeRole.Socio && request.PlanId.HasValue)
+            {
+                plan = _planRepository.GetPlanById(request.PlanId);
+                if (plan == null)
+                    return false;
+            }
+            else if (request.RoleId == (int)TypeRole.Socio && !request.PlanId.HasValue)
+            {
+                return false; 
+            }
+            
+
+            var user = new User
+            {
+                Nombre = request.Nombre,
+                Apellido = request.Apellido,
+                Email = request.Email,
+                Telefono = request.Telefono,
+                Contraseña = request.Contraseña,
+                PlanId = request.PlanId,
+                RoleId = request.RoleId,
+                Plan = plan,
+                Rol = role
+            };
+
+            return _userRepository.CreateUser(user);
+        }
+
 
 
         public bool DeleteUser(int id)
@@ -131,53 +178,6 @@ namespace Application.Services
             return _userRepository.UpdateUser(id, existingUser);
         }
 
-
-        public bool CreateUser(CreateUserRequest request)
-        {
-            
-            if (string.IsNullOrWhiteSpace(request.Nombre) ||
-                string.IsNullOrWhiteSpace(request.Email) ||
-                string.IsNullOrWhiteSpace(request.Contraseña))
-                return false;
-
-            
-            if (_userRepository.GetByEmail(request.Email) != null)
-                return false;
-
-            
-            var role = _roleRepository.GetById(request.RoleId);
-            if (role == null)
-                return false;
-
-            
-            Plan? plan = null;
-            if (request.RoleId == (int)TypeRole.Socio && request.PlanId.HasValue)
-            {
-                plan = _planRepository.GetPlanById(request.PlanId);
-                if (plan == null)
-                    return false;
-            }
-            else if (request.RoleId == (int)TypeRole.Socio && !request.PlanId.HasValue)
-            {
-                return false; 
-            }
-            
-
-            var user = new User
-            {
-                Nombre = request.Nombre,
-                Apellido = request.Apellido,
-                Email = request.Email,
-                Telefono = request.Telefono,
-                Contraseña = request.Contraseña,
-                PlanId = request.PlanId,
-                RoleId = request.RoleId,
-                Plan = plan,
-                Rol = role
-            };
-
-            return _userRepository.CreateUser(user);
-        }
 
 
         public bool ChangeUserPlan(int userId, int newPlanId)

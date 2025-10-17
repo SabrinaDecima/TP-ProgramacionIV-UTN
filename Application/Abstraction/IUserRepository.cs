@@ -11,7 +11,6 @@ namespace Application.Abstraction
         List<User> GetUsers();
 
         User? GetById(int id);
-
         bool CreateUser(User user);
 
         bool UpdateUser(int id, User user);

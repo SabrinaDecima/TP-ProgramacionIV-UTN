@@ -33,11 +33,16 @@ namespace Application.Services
             //    if (gymClass == null)
             //        return new EnrollmentResponse { Message = "Clase no encontrada." };
 
+<<<<<<< HEAD
             //    if (!IsFutureOrToday(gymClass.Fecha))
             //        return new EnrollmentResponse { Message = "No se puede inscribir en clases pasadas." };
 
             //    if (!HasActivePlan(user))
             //        return new EnrollmentResponse { Message = "El usuario no tiene un plan activo." };
+=======
+                if (!HasActivePlan(user))
+                    return new EnrollmentResponse { Message = "El usuario no tiene un plan activo." };
+>>>>>>> ce6a040097a20c20044d1dc025e9a12cbb308c28
 
             //    if (user.GymClasses.Any(gc => gc.Id == gymClass.Id))
             //        return new EnrollmentResponse { Message = "El usuario ya está inscrito en esta clase." };
@@ -67,6 +72,7 @@ namespace Application.Services
 
         // validaciones
 
+<<<<<<< HEAD
         //private bool IsFutureOrToday(string dateStr)
         //{
 
@@ -75,6 +81,8 @@ namespace Application.Services
 
         //    return classDate.Date >= DateTime.Today;
         //}
+=======
+>>>>>>> ce6a040097a20c20044d1dc025e9a12cbb308c28
 
         //private bool HasActivePlan(User user)
         //{
@@ -92,13 +100,25 @@ namespace Application.Services
         //    return expiryDate.Date >= DateTime.Today;
         //}
 
+<<<<<<< HEAD
       
+=======
+        private bool CanEnrollMoreClasses(User user, string classDateStr)
+        {
+            if (!DateTime.TryParseExact(classDateStr, "yyyy-MM-dd", null, DateTimeStyles.None, out var classDate))
+                return true;
+
+            // Obtener la semana de la clase que se quiere inscribir
+            int targetWeek = GetWeekOfYear(classDate);
+            int targetYear = classDate.Year;
+>>>>>>> ce6a040097a20c20044d1dc025e9a12cbb308c28
 
     //        // Calcular semana de la clase (lunes a domingo)
     //        var diff = (7 + (classDate.DayOfWeek - DayOfWeek.Monday)) % 7;
     //        var startOfWeek = classDate.AddDays(-diff).Date;
     //        var endOfWeek = startOfWeek.AddDays(7).AddTicks(-1);
 
+<<<<<<< HEAD
     //        var enrolledThisWeek = user.GymClasses
     //            .Where(gc =>
     //            {
@@ -111,5 +131,29 @@ namespace Application.Services
     //        return enrolledThisWeek < maxClasses;
     //    }
     //
+=======
+            // Contar cuántas clases YA TIENE el usuario en ESA SEMANA
+            var enrolledThisWeek = user.GymClasses
+                .Where(gc =>
+                {
+                    if (!DateTime.TryParseExact(gc.Fecha, "yyyy-MM-dd", null, DateTimeStyles.None, out var gcDate))
+                        return false;
+                    return GetWeekOfYear(gcDate) == targetWeek && gcDate.Year == targetYear;
+                })
+                .Count();
+
+            return enrolledThisWeek < maxClasses;
+        }
+
+        private int GetWeekOfYear(DateTime date)
+        {
+            var calendar = System.Globalization.CultureInfo.InvariantCulture.Calendar;
+            return calendar.GetWeekOfYear(
+                date,
+                System.Globalization.CalendarWeekRule.FirstFourDayWeek,
+                DayOfWeek.Monday // Lunes como primer día de la semana
+            );
+        }
+>>>>>>> ce6a040097a20c20044d1dc025e9a12cbb308c28
     }
 }
