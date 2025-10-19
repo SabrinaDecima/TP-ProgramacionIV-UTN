@@ -18,28 +18,38 @@ namespace WebApi.Controllers
         [HttpPost("enroll")]
         public IActionResult Enroll([FromBody] EnrollUserRequest request)
         {
-            var response = _enrollmentService.EnrollUser(request);
-            
-            if (!response)
+            var result = _enrollmentService.EnrollUser(request);
+
+            if(result == null)
             {
-                return BadRequest("No se ha podido realizar la inscripcion a clase.");
+                return StatusCode(500, "Error interno del servidor.");
+            }
+            
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
             }
 
-            return Ok("Inscripción exitosa");
+            return Ok(result.Message);
         }
 
         [HttpDelete("unenroll")]
         public IActionResult Unenroll([FromBody] EnrollUserRequest request)
         {
-            var response = _enrollmentService.UnenrollUser(request);
+            var result = _enrollmentService.UnenrollUser(request);
 
 
-            if (!response)
+            if (result == null)
             {
-                return BadRequest("No se ha podido realizar la desinscripcion a clase.");
+                return StatusCode(500, "Error interno del servidor.");
             }
 
-            return Ok("Desinscripción exitosa");
+
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Message);
         }
     }
 }
