@@ -112,8 +112,8 @@ public class AuthenticationService : IAuthenticationService
             request.Email,
             request.Telefono,
             hashedPassword,
-            plan,
-            role
+            role,
+            plan
            );
 
          var created = _userRepository.CreateUser(newUser);

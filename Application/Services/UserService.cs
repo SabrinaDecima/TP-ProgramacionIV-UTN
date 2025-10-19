@@ -100,7 +100,7 @@ namespace Application.Services
                     Apellido = u.Apellido,
                     Email = u.Email,
                     Telefono = u.Telefono,
-                    PlanId = (int)u.PlanId,
+                    PlanId = u.PlanId ?? 0,
                }).ToList();
 
             return userList;

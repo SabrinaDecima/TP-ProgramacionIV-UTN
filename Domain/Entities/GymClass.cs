@@ -27,6 +27,8 @@ namespace Domain.Entities
         public string Fecha { get; set; }
 
         public string Hora { get; set; }
+
+        public int MaxCapacity { get; set; } = 3;
         public List<User> Users { get; set; } = new(); //relcion con usuarios 
 
     }

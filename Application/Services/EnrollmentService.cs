@@ -53,6 +53,15 @@ namespace Application.Services
                 };
             }
 
+            if(gymClass.Users.Count >= gymClass.MaxCapacity)
+            {
+                return new EnrollmentResponse
+                {
+                    Success = false,
+                    Message = "La clase está completa."
+                };
+            }
+
             if (user.GymClasses == null)
             {
                 user.GymClasses = new List<GymClass>();

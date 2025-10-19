@@ -8,7 +8,7 @@ namespace Domain.Entities
         public User()
         {
         }
-        public User(int id, string name, string lastName, string email, string phoneNumber, string password, Plan plan, Role role)
+        public User(int id, string name, string lastName, string email, string phoneNumber, string password, Role role, Plan? plan = null )
         {
             Id = id;
             Nombre = name;
