@@ -15,5 +15,6 @@ namespace Application.Abstraction
         bool DeletePayment(int id);
         List<PaymentResponse> GetPaymentsByUserId(int userId);
         List<PaymentResponse> GetPendingPaymentsByUserId(int userId);
+        Task<string> CreatePaymentPreferenceAsync(CreateMercadoPagoRequest request);
     }
 }

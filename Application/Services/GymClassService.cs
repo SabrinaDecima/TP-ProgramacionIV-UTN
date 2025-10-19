@@ -45,6 +45,9 @@ namespace Application.Services
             {
                 Id = gc.Id,
                 Nombre = gc.Nombre,
+                Descripcion = gc.Descripcion,
+                DuracionMinutos = gc.DuracionMinutos,
+                ImageUrl = gc.ImageUrl,
                 Fecha = gc.Fecha,
                 Hora = gc.Hora
             }).ToList();
@@ -59,6 +62,9 @@ namespace Application.Services
             {
                 Id = gc.Id,
                 Nombre = gc.Nombre,
+                Descripcion = gc.Descripcion,
+                DuracionMinutos = gc.DuracionMinutos,
+                ImageUrl = gc.ImageUrl,
                 Fecha = gc.Fecha,
                 Hora = gc.Hora
             };

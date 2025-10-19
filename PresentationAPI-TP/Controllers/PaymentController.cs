@@ -82,5 +82,30 @@ namespace WebAPI.Controllers
             var pendingPayments = _paymentService.GetPendingPaymentsByUserId(userId);
             return Ok(pendingPayments);
         }
+        [HttpPost("mercadopago")]
+        public async Task<IActionResult> CreateMercadoPagoPayment([FromBody] CreateMercadoPagoRequest request)
+        {
+            if (request.Monto <= 0)
+                return BadRequest("El monto debe ser mayor a cero.");
+
+            try
+            {
+                var url = await _paymentService.CreatePaymentPreferenceAsync(request);
+                return Ok(new { Url = url });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest($"Configuración incorrecta: {ex.Message}");
+            }
+            catch (HttpRequestException ex)
+            {
+                return BadRequest($"Error de Mercado Pago: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error interno al procesar el pago.");
+            }
+        }
+
     }
 }
