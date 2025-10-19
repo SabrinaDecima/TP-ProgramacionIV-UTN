@@ -4,16 +4,79 @@ using Contracts.GymClass.Request;
 using Contracts.Payment.Request;
 using Contracts.Payment.Response;
 using Domain.Entities;
+using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
 namespace Application.Services
 {
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public PaymentService(IPaymentRepository paymentRepository)
+        private readonly IConfiguration _configuration;
+
+        public PaymentService(IPaymentRepository paymentRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _paymentRepository = paymentRepository;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
+        }
+
+
+        public async Task<string> CreatePaymentPreferenceAsync(CreateMercadoPagoRequest request)
+        {
+            if (request.Monto <= 0)
+                throw new ArgumentException("El monto debe ser mayor a cero.");
+
+            var client = _httpClientFactory.CreateClient("MercadoPago");
+            var accessToken = _configuration["MercadoPago:AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+                throw new InvalidOperationException("Access Token de Mercado Pago no configurado.");
+
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+            var preferenceRequest = new
+            {
+                items = new[]
+                {
+            new
+            {
+                 title = request.Descripcion ?? "Membresía Gym",
+                quantity = 1,
+                currency_id = "ARS",
+                unit_price = (double)request.Monto
+            }
+        },
+                back_urls = new
+                {
+                    success = "https://tusitio.com/success",
+                    failure = "https://tusitio.com/failure",
+                    pending = "https://tusitio.com/pending"
+                },
+                auto_return = "approved"
+            };
+
+            var json = JsonSerializer.Serialize(preferenceRequest);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("/checkout/preferences", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error Mercado Pago ({response.StatusCode}): {errorContent}");
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(responseJson);
+            var initPoint = doc.RootElement.GetProperty("init_point").GetString();
+
+            return initPoint ?? throw new InvalidOperationException("Respuesta de Mercado Pago sin init_point.");
         }
 
         public List<PaymentResponse> GetAllPayments()

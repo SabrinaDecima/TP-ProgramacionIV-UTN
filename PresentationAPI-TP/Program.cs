@@ -25,8 +25,6 @@ builder.Services.AddHttpClient("MercadoPago", client =>
     ));
 
 
-
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
