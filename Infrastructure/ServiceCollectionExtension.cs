@@ -30,7 +30,9 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddDatabaseConfiguration(this IServiceCollection services, WebApplicationBuilder builder)
     {
         return services.AddDbContext<GymDbContext>(
-            options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+            //options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+            options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"))
+            );
     }
 
     public static IServiceCollection AddAuthenticationConfiguration(this IServiceCollection services, WebApplicationBuilder builder)
