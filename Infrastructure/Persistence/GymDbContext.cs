@@ -45,6 +45,11 @@ namespace Infrastructure.Persistence
                 .HasForeignKey(u => u.PlanId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Plan>()
+              .Property(p => p.Precio)
+              .HasPrecision(18, 2);
+
+
             // Configuración de Payment
             modelBuilder.Entity<Payment>()
                 .HasOne(p => p.User)

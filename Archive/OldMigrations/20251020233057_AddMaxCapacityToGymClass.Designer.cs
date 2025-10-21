@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(GymDbContext))]
-    [Migration("20251019223746_AddUserEnrollmentLimit")]
-    partial class AddUserEnrollmentLimit
+    [Migration("20251020233057_AddMaxCapacityToGymClass")]
+    partial class AddMaxCapacityToGymClass
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

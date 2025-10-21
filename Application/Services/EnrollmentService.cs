@@ -53,7 +53,7 @@ namespace Application.Services
                 };
             }
 
-            if(gymClass.Users.Count >= gymClass.MaxCapacity)
+            if(gymClass.Users.Count >= gymClass.MaxCapacityUser)
             {
                 return new EnrollmentResponse
                 {
