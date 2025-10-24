@@ -111,6 +111,8 @@ namespace Application.Services
         {
             if (request.Monto <= 0)
                 return null;
+            //validar que el usuario existe (esta logueado)
+            //juntar este post con el de mercado pago
 
             var payment = new Payment
             {

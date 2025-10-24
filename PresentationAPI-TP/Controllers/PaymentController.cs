@@ -1,11 +1,13 @@
 ﻿using Application.Abstraction;
 using Contracts.GymClass.Request;
 using Contracts.Payment.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
 {
     [ApiController]
+    //[Authorize]
     [Route("api/[controller]")]
     public class PaymentController : ControllerBase
     {
@@ -31,15 +33,18 @@ namespace WebAPI.Controllers
                 return NotFound();
             return Ok(payment);
         }
-
+        [Authorize]
         [HttpPost]
         public IActionResult Create(CreatePaymentRequest request)
         {
-            
+            var userId = User.Claims.FirstOrDefault(x => x.Type== "UserId");
+
             if (request.Monto <= 0)
                 return BadRequest("El monto debe ser mayor a cero.");
+            request.UserId = int.Parse(userId.Value);   
 
             var result = _paymentService.CreatePayment(request);
+
             if (result == null)
                 return BadRequest("No se pudo crear el pago.");
             return Ok(result);

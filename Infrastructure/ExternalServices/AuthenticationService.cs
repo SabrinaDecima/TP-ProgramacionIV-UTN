@@ -54,7 +54,8 @@ public class AuthenticationService : IAuthenticationService
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, user.Email),
-            new Claim(ClaimTypes.Role, roleName)
+            new Claim(ClaimTypes.Role, roleName),
+            new Claim("UserId", user.Id.ToString())
         };
 
         // 4. Leer configuración JWT
