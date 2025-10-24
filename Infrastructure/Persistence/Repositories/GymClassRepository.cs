@@ -45,7 +45,7 @@ namespace Infrastructure.Repositories
             existing.Descripcion = gymClass.Descripcion;
             existing.DuracionMinutos = gymClass.DuracionMinutos;
             existing.ImageUrl = gymClass.ImageUrl;
-            existing.Fecha = gymClass.Fecha;
+            existing.Dia = gymClass.Dia;
             existing.Hora = gymClass.Hora;
 
             _context.SaveChanges();

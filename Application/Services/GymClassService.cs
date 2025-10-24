@@ -24,7 +24,7 @@ namespace Application.Services
                 Descripcion = request.Descripcion,
                 DuracionMinutos = request.DuracionMinutos,
                 ImageUrl = request.ImageUrl,
-                Fecha = request.Fecha,
+                Dia = request.Dia,
                 Hora = request.Hora
             };
 
@@ -48,7 +48,7 @@ namespace Application.Services
                 Descripcion = gc.Descripcion,
                 DuracionMinutos = gc.DuracionMinutos,
                 ImageUrl = gc.ImageUrl,
-                Fecha = gc.Fecha,
+                Dia = gc.Dia,
                 Hora = gc.Hora
             }).ToList();
         }
@@ -65,7 +65,7 @@ namespace Application.Services
                 Descripcion = gc.Descripcion,
                 DuracionMinutos = gc.DuracionMinutos,
                 ImageUrl = gc.ImageUrl,
-                Fecha = gc.Fecha,
+                Dia = gc.Dia,
                 Hora = gc.Hora
             };
         }
@@ -76,7 +76,7 @@ namespace Application.Services
             if (gymClass == null) return false;
 
             gymClass.Nombre = request.Nombre;
-            gymClass.Fecha = request.Fecha;
+            gymClass.Dia = request.Dia;
             gymClass.Hora = request.Hora;
 
             return _gymClassRepository.UpdateGymClass(id, gymClass);

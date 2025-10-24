@@ -1,4 +1,6 @@
 ﻿
+using Domain.Entities;
+
 namespace Contracts.GymClass.Request
 {
     public class UpdateGymClassRequest 
@@ -8,7 +10,7 @@ namespace Contracts.GymClass.Request
         public string Descripcion { get; set; }
         public int DuracionMinutos { get; set; }
         public string ImageUrl { get; set; }
-        public string Fecha { get; set; }
+        public DayOfTheWeek Dia { get; set; }
 
         public string Hora {  get; set; }
     }

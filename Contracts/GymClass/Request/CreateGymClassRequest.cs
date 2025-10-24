@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ namespace Contracts.GymClass.Request
         public string Descripcion { get; set; }
         public int DuracionMinutos { get; set; }
         public string ImageUrl { get; set; }
-        public string Fecha { get; set; }
+        public DayOfTheWeek Dia { get; set; }
 
         public string Hora {  get; set; }
     }

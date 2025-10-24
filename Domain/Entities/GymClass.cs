@@ -7,14 +7,14 @@ namespace Domain.Entities
     public class GymClass
     {
         public GymClass() { }
-        public GymClass(int id, string name, string description, int durationMinute, string imageUrl, string date, string hour)
+        public GymClass(int id, string name, string description, int durationMinute, string imageUrl, DayOfTheWeek day, string hour)
         {
             Id = id;
             Nombre = name;
             Descripcion = description;
             DuracionMinutos = durationMinute;
             ImageUrl = imageUrl;
-            Fecha = date;
+            Dia = day;
             Hora = hour;
 
         }
@@ -24,13 +24,24 @@ namespace Domain.Entities
         public int DuracionMinutos { get; set; }
         public string ImageUrl { get; set; }
 
-        public string Fecha { get; set; }
+        public DayOfTheWeek Dia{ get; set; }
 
         public string Hora { get; set; }
 
         public int MaxCapacityUser { get; set; } = 3;
         public List<User> Users { get; set; } = new(); //relcion con usuarios 
 
+    }
+
+    public enum DayOfTheWeek
+    {
+        Lunes = 1,
+        Martes = 2,
+        Miercoles = 3,
+        Jueves = 4,
+        Viernes = 5,
+        Sabado = 6,
+        Domingo = 7
     }
 }
 
