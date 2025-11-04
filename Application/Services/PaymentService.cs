@@ -84,7 +84,7 @@ namespace Application.Services
                 UserId = request.UserId, // viene de la request
                 Monto = request.Monto,
                 Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                Pagado = false,
+                Pagado = true,
                 PreferenceId = preferenceId,
                 InitPoint = initPoint
             };
