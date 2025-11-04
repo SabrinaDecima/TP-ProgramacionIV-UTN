@@ -8,6 +8,7 @@ namespace Contracts.Payment.Request
 {
     public class CreateMercadoPagoRequest
     {
+        public int UserId { get; set; }
         public decimal Monto { get; set; }
         public string? Descripcion { get; set; }
     }
