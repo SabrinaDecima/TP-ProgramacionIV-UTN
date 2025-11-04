@@ -87,11 +87,16 @@ namespace WebAPI.Controllers
             var pendingPayments = _paymentService.GetPendingPaymentsByUserId(userId);
             return Ok(pendingPayments);
         }
+
         [HttpPost("mercadopago")]
         public async Task<IActionResult> CreateMercadoPagoPayment([FromBody] CreateMercadoPagoRequest request)
         {
             if (request.Monto <= 0)
                 return BadRequest("El monto debe ser mayor a cero.");
+
+            var userId = User.Claims.FirstOrDefault(x => x.Type == "UserId");
+            if (userId != null)
+                request.UserId = int.Parse(userId.Value);
 
             try
             {
@@ -111,6 +116,8 @@ namespace WebAPI.Controllers
                 return StatusCode(500, "Error interno al procesar el pago.");
             }
         }
+
+
 
     }
 }

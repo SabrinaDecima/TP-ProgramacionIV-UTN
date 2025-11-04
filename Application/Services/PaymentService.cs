@@ -74,7 +74,23 @@ namespace Application.Services
 
             var responseJson = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(responseJson);
+
             var initPoint = doc.RootElement.GetProperty("init_point").GetString();
+            var preferenceId = doc.RootElement.GetProperty("id").GetString();
+
+            // guardar pago en bdd
+            var payment = new Payment
+            {
+                UserId = request.UserId, // viene de la request
+                Monto = request.Monto,
+                Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                Pagado = true,
+                PreferenceId = preferenceId,
+                InitPoint = initPoint
+            };
+
+            _paymentRepository.CreatePayment(payment);
+
 
             return initPoint ?? throw new InvalidOperationException("Respuesta de Mercado Pago sin init_point.");
         }

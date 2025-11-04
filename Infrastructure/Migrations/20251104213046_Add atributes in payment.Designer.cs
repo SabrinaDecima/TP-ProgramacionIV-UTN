@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(GymDbContext))]
-    partial class GymDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251104213046_Add atributes in payment")]
+    partial class Addatributesinpayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,7 +245,7 @@ namespace Infrastructure.Migrations
                         {
                             Id = 1,
                             Apellido = "uno",
-                            Contraseña = "AQAAAAIAAYagAAAAEEFrn+6DEsPXMequCgERU8LSyQH+PM6u9VAX4QeamSwTRorp0iUyG2C+fATGCamRUw==",
+                            Contraseña = "1234",
                             Email = "cliente@demo.com",
                             Nombre = "cliente",
                             PlanId = 1,
@@ -253,7 +256,7 @@ namespace Infrastructure.Migrations
                         {
                             Id = 2,
                             Apellido = "demo",
-                            Contraseña = "AQAAAAIAAYagAAAAECFWEFBykZZUBoD/AcUva5R1SXLoj5fanna9RHynumHspcja0toTPOBiVjoyIyio+A==",
+                            Contraseña = "1234",
                             Email = "admin@demo.com",
                             Nombre = "admin",
                             RoleId = 2,
@@ -263,7 +266,7 @@ namespace Infrastructure.Migrations
                         {
                             Id = 3,
                             Apellido = "demo",
-                            Contraseña = "AQAAAAIAAYagAAAAEFYbqoLLCCvlrq6jX9skP44TUv4LcBx0uHTxt+KVKzoWAFwCyOqMMMd5W+RHfhYSow==",
+                            Contraseña = "1234",
                             Email = "superadmin@demo.com",
                             Nombre = "superadmin",
                             RoleId = 3,
