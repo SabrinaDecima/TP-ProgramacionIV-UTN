@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Infrastructure.Persistence.Seeding;
 
 
 
@@ -81,9 +82,9 @@ namespace Infrastructure.Persistence
 
             // Seed de Usuarios
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Nombre = "cliente", Apellido = "uno", Email = "cliente@demo.com", Telefono = "1234", Contraseña = "1234", RoleId = (int)TypeRole.Socio, PlanId = (int)TypePlan.Basic },
-                new User { Id = 2, Nombre = "admin", Apellido = "demo", Email = "admin@demo.com", Telefono = "5678", Contraseña = "1234", RoleId = (int)TypeRole.Administrador, PlanId = null },   
-                new User { Id = 3, Nombre = "superadmin", Apellido = "demo", Email = "superadmin@demo.com", Telefono = "9999", Contraseña = "1234", RoleId = (int)TypeRole.SuperAdministrador, PlanId = null }
+                new User { Id = 1, Nombre = "cliente", Apellido = "uno", Email = "cliente@demo.com", Telefono = "1234", Contraseña = PasswordSeeder.Hash("1234"), RoleId = (int)TypeRole.Socio, PlanId = (int)TypePlan.Basic },
+                new User { Id = 2, Nombre = "admin", Apellido = "demo", Email = "admin@demo.com", Telefono = "5678", Contraseña = PasswordSeeder.Hash("1234"), RoleId = (int)TypeRole.Administrador, PlanId = null },   
+                new User { Id = 3, Nombre = "superadmin", Apellido = "demo", Email = "superadmin@demo.com", Telefono = "9999", Contraseña = PasswordSeeder.Hash("1234"), RoleId = (int)TypeRole.SuperAdministrador, PlanId = null }
             );
 
             // Seed de Payments

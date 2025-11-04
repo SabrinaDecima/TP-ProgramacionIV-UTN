@@ -1,6 +1,8 @@
 ﻿using Application.Interfaces;
 using Contracts.User.Request;
 using Contracts.User.Response;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PresentationAPI_TP.Controllers
@@ -17,6 +19,8 @@ namespace PresentationAPI_TP.Controllers
             _userService = userService;
             _planService = planService;
         }
+
+        [Authorize(Roles="Administrador")]
 
         [HttpGet] 
         public IActionResult GetAll()
