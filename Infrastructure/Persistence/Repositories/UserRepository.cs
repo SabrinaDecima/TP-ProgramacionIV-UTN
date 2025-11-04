@@ -49,7 +49,7 @@ namespace Infrastructure.Persistence.Repositories
 
         public User? GetByEmail(string email)
         {
-            return _context.Users.FirstOrDefault(u => u.Email == email);
+            return _context.Users.Include(u => u.Rol).FirstOrDefault(u => u.Email == email);
         }
 
         public User? GetByEmailAndPassword (LoginRequest request)

@@ -4,6 +4,7 @@ using Contracts.User.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace PresentationAPI_TP.Controllers
 {
@@ -20,7 +21,7 @@ namespace PresentationAPI_TP.Controllers
             _planService = planService;
         }
 
-        [Authorize(Roles="Administrador")]
+        [Authorize(Roles = "Administrador, SuperAdministrador" )]
 
         [HttpGet] 
         public IActionResult GetAll()
@@ -29,6 +30,8 @@ namespace PresentationAPI_TP.Controllers
             
             return Ok(users);
         }
+
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
 
         [HttpGet("{id}")]
         public IActionResult GetById([FromRoute]int id)
@@ -73,6 +76,15 @@ namespace PresentationAPI_TP.Controllers
                 return BadRequest("No se pudo cambiar el plan. Verifica que el PlanId sea válido.");
 
             return Ok("Plan actualizado correctamente.");
+        }
+
+        [Authorize]
+        [HttpGet("whoami")]
+        public IActionResult WhoAmI()
+        {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var email = User.Identity?.Name;
+            return Ok(new { email, role });
         }
 
         //[HttpPost]

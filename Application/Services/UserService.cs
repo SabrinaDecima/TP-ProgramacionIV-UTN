@@ -119,7 +119,7 @@ namespace Application.Services
                 Apellido = user.Apellido,
                 Email = user.Email,
                 Telefono = user.Telefono,
-                PlanId = (int)user.PlanId,
+                PlanId = user.PlanId ?? 0,
             };
         }
 
@@ -145,7 +145,7 @@ namespace Application.Services
                 Apellido = u.Apellido,
                 Email = u.Email,
                 Telefono = u.Telefono,
-                PlanId = (int)u.PlanId
+                PlanId = u.PlanId ?? 0,
             }).ToList();
         }
 
