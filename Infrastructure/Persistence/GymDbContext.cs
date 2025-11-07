@@ -93,9 +93,46 @@ namespace Infrastructure.Persistence
                 new Payment { Id = 2, UserId = 1, Monto = 25.0m, Fecha = "2025-11-10", Pagado = false },
                 new Payment { Id = 3, UserId = 2, Monto = 45.0m, Fecha = "2025-10-10", Pagado = true }
             );
+
+            // Seed de GymClass
+            modelBuilder.Entity<GymClass>().HasData(
+                new GymClass
+                {
+                    Id = 1,
+                    Nombre = "Yoga",
+                    Descripcion = "Clase de relajación y estiramiento",
+                    DuracionMinutos = 60,
+                    ImageUrl = "images/yoga.jpg",
+                    Dia = DayOfTheWeek.Lunes,
+                    Hora = "18:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 2,
+                    Nombre = "CrossFit",
+                    Descripcion = "Entrenamiento funcional de alta intensidad",
+                    DuracionMinutos = 45,
+                    ImageUrl = "images/crossfit.jpg",
+                    Dia = DayOfTheWeek.Martes,
+                    Hora = "19:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 3,
+                    Nombre = "Spinning",
+                    Descripcion = "Ejercicio cardiovascular en bicicleta",
+                    DuracionMinutos = 50,
+                    ImageUrl = "images/spinning.jpg",
+                    Dia = DayOfTheWeek.Miercoles,
+                    Hora = "20:00",
+                    MaxCapacityUser = 15
+
+                }
+                );
+
         }
-
-
-
     }
-}
+    }
+

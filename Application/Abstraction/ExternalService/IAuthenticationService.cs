@@ -7,5 +7,5 @@ public interface IAuthenticationService
 {
     string Login(LoginRequest request);
 
-    string Register(CreateUserRequest request);
+    //string Register(CreateUserRequest request);
 }

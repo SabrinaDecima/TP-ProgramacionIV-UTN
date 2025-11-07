@@ -3,7 +3,7 @@ using Application.Interfaces;
 using Contracts.User.Request;
 using Contracts.User.Response;
 using Domain.Entities;
-
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Data;
 
@@ -16,17 +16,20 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IPlanRepository _planRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IPasswordHasher<User> _passwordHasher;
         
 
 
         public UserService(
             IUserRepository userRepository,
             IPlanRepository planRepository,
-            IRoleRepository roleRepository)
+            IRoleRepository roleRepository,
+            IPasswordHasher<User> passwordHasher)
         {
             _userRepository = userRepository;
             _planRepository = planRepository;
             _roleRepository = roleRepository;
+            _passwordHasher = passwordHasher;
         }
 
         public bool CreateUser(CreateUserRequest request)
@@ -41,24 +44,17 @@ namespace Application.Services
             if (_userRepository.GetByEmail(request.Email) != null)
                 return false;
 
-            
-            var role = _roleRepository.GetById(request.RoleId);
-            if (role == null)
+            var plan = _planRepository.GetPlanById(request.PlanId);
+            if (plan == null)
                 return false;
 
-            
-            Plan? plan = null;
-            if (request.RoleId == (int)TypeRole.Socio && request.PlanId.HasValue)
-            {
-                plan = _planRepository.GetPlanById(request.PlanId);
-                if (plan == null)
-                    return false;
-            }
-            else if (request.RoleId == (int)TypeRole.Socio && !request.PlanId.HasValue)
-            {
-                return false; 
-            }
-            
+
+
+            var defaultRole = _roleRepository.GetById((int)TypeRole.Socio);
+            if (defaultRole == null)
+                return false;
+
+          
 
             var user = new User
             {
@@ -66,12 +62,13 @@ namespace Application.Services
                 Apellido = request.Apellido,
                 Email = request.Email,
                 Telefono = request.Telefono,
-                Contraseña = request.Contraseña,
                 PlanId = request.PlanId,
-                RoleId = request.RoleId,
+                RoleId = defaultRole.Id,
                 Plan = plan,
-                Rol = role
+                Rol = defaultRole
             };
+
+            user.Contraseña = _passwordHasher.HashPassword(user, request.Contraseña);
 
             return _userRepository.CreateUser(user);
         }
