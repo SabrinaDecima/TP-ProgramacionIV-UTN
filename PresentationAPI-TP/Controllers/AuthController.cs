@@ -1,4 +1,5 @@
 ﻿using Application.Abstraction.ExternalServices;
+using Application.Interfaces;
 using Contracts.Login.Request;
 using Contracts.User.Request;
 using Infrastructure.Persistence;
@@ -16,26 +17,30 @@ namespace Api.Controllers
     {
 
         private readonly IAuthenticationService _authenticationService;
+        private readonly IUserService _userService;
 
-        public AuthController(IAuthenticationService authenticationService)
+        public AuthController(IAuthenticationService authenticationService, IUserService userService)
         {
             
             _authenticationService = authenticationService;
+            _userService = userService;
         }
 
         [HttpPost("register")]
 
         public ActionResult Register([FromBody] CreateUserRequest request)
         {
-            var result = _authenticationService.Register(request);
+            var result = _userService.CreateUser(request);
 
-            if (result == "Usuario ya existe" || result == "Plan no encontrado" ||
-                result == "Rol no encontrado" || result == "Error al crear el usuario")
-            {
-                return BadRequest(result);
-            }
+            //if (result == "Usuario ya existe" || result == "Plan no encontrado" ||
+            //    result == "Rol no encontrado" || result == "Error al crear el usuario")
+            //{
+            //    return BadRequest(result);
+            //}
+            if (!result)
+                return BadRequest();
 
-            return Ok(result);
+            return Ok("Se ha registrado el usuario con exito");
         }
 
         [HttpPost("login")]

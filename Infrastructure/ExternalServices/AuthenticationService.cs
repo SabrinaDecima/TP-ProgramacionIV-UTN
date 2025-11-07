@@ -81,48 +81,5 @@ public class AuthenticationService : IAuthenticationService
         return tokenString;
     }
 
-    public string Register(CreateUserRequest request)
-    {
-        var existingUser = _userRepository.GetByEmail(request.Email);
-
-        if(existingUser != null)
-        {
-            return "Usuario ya existe";
-        }
-
-        var plan = _planRepository.GetPlanById(request.PlanId);
-
-        if(plan == null)
-        {
-            return "Plan no encontrado";
-        }
-
-        var role = _roleRepository.GetById(request.RoleId);
-
-        if(role == null)
-        {
-            return "Rol no encontrado";
-        }
-
-        var hashedPassword = _passwordHasher.HashPassword(null, request.Contraseña);
-
-        var newUser = new User(
-            0,
-            request.Nombre,
-            request.Apellido,
-            request.Email,
-            request.Telefono,
-            hashedPassword,
-            role,
-            plan
-           );
-
-         var created = _userRepository.CreateUser(newUser);
-
-        if(!created)
-            return "Error al crear el usuario";
-
-        return "Usuario registrado exitosamente";
-        
-    }
+    
 }
