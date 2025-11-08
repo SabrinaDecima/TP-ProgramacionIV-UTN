@@ -31,10 +31,18 @@ public static class ServiceCollectionExtension
 
     public static IServiceCollection AddDatabaseConfiguration(this IServiceCollection services, WebApplicationBuilder builder)
     {
-        return services.AddDbContext<GymDbContext>(
-           
-            options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"))
-            );
+        return services.AddDbContext<GymDbContext>(options =>
+         options.UseSqlServer(
+             builder.Configuration.GetConnectionString("SqlServerConnection"),
+             sqlOptions =>
+             {
+                 sqlOptions.EnableRetryOnFailure(
+                     maxRetryCount: 5,
+                     maxRetryDelay: TimeSpan.FromSeconds(10),
+                     errorNumbersToAdd: null
+                 );
+             }));
+
     }
 
     public static IServiceCollection AddAuthenticationConfiguration(this IServiceCollection services, WebApplicationBuilder builder)

@@ -78,6 +78,9 @@ namespace Application.Services
             gymClass.Nombre = request.Nombre;
             gymClass.Dia = request.Dia;
             gymClass.Hora = request.Hora;
+            gymClass.Descripcion = request.Descripcion;
+            gymClass.DuracionMinutos = request.DuracionMinutos;
+            gymClass.ImageUrl = request.ImageUrl;
 
             return _gymClassRepository.UpdateGymClass(id, gymClass);
         }
