@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using Polly;
 
 
 namespace Infrastructure;
@@ -26,7 +27,8 @@ public static class ServiceCollectionExtension
             .AddAuthenticationConfiguration(builder)
             .AddAuthorizationConfiguration()
             .AddRepositories()
-            .AddExternalServices();
+            .AddExternalServices()
+            .AddHttpClients();
     }
 
     public static IServiceCollection AddDatabaseConfiguration(this IServiceCollection services, WebApplicationBuilder builder)
@@ -95,4 +97,22 @@ public static class ServiceCollectionExtension
 
         return services;
     }
+
+    public static IServiceCollection AddHttpClients(this IServiceCollection services)
+    {
+        services.AddHttpClient("MercadoPago", client =>
+        {
+            client.BaseAddress = new Uri("https://api.mercadopago.com/");
+        })
+        .AddPolicyHandler(Policy
+            .Handle<HttpRequestException>()
+            .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+            .WaitAndRetryAsync(
+                retryCount: 3,
+                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
+            ));
+
+        return services;
+    }
+
 }
