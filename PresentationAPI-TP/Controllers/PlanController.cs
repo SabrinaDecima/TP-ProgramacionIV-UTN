@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Contracts.Plan.Request;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PresentationAPI_TP.Controllers
@@ -31,7 +32,7 @@ namespace PresentationAPI_TP.Controllers
             return Ok(plan);
         }
 
-
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
 
         [HttpPut("{id}")]
         public IActionResult UpdatePlan([FromRoute] int id, [FromBody] UpdatePlanRequest request)

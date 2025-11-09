@@ -48,7 +48,7 @@ namespace PresentationAPI_TP.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPut("{id}")]
         public IActionResult Update([FromRoute] int id, [FromBody] UpdateUserRequest request)
         {
@@ -65,6 +65,7 @@ namespace PresentationAPI_TP.Controllers
             return Ok("Usuario actualizado correctamente.");
         }
 
+        [Authorize]
         [HttpPut("{userId}/plan")]
         public IActionResult ChangePlan([FromRoute] int userId, [FromBody] ChangePlanRequest request)
         {
