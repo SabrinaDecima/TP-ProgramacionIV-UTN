@@ -1,4 +1,5 @@
 ﻿using Application.Abstraction;
+using Application.Abstraction.ExternalService;
 using Application.Abstraction.ExternalServices;
 using Domain.Entities;
 using Infrastructure.ExternalServices;
@@ -12,8 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using Polly;
+using System.Security.Claims;
 
 
 namespace Infrastructure;
@@ -94,6 +95,7 @@ public static class ServiceCollectionExtension
     {
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+        services.AddScoped<IPaymentGateway, MercadoPagoService>();
 
         return services;
     }
