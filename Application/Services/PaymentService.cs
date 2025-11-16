@@ -17,7 +17,7 @@ namespace Application.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentGateway _paymentGateway;
 
-        private readonly IConfiguration _configuration;
+      
 
         public PaymentService(IPaymentRepository paymentRepository, IPaymentGateway paymentGateway)
         {
@@ -31,55 +31,12 @@ namespace Application.Services
             if (request.Monto <= 0)
                 throw new ArgumentException("El monto debe ser mayor a cero.");
 
-            //var client = _httpClientFactory.CreateClient("MercadoPago");
-            //var accessToken = _configuration["MercadoPago:AccessToken"];
+
 
             var (initPoint, preferenceId) = await _paymentGateway.CreatePreferenceAsync(request);
 
 
-        //    if (string.IsNullOrEmpty(accessToken))
-        //        throw new InvalidOperationException("Access Token de Mercado Pago no configurado.");
 
-        //    client.DefaultRequestHeaders.Authorization =
-        //        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
-        //    var preferenceRequest = new
-        //    {
-        //        items = new[]
-        //        {
-        //    new
-        //    {
-        //         title = request.Descripcion ?? "Membresía Gym",
-        //        quantity = 1,
-        //        currency_id = "ARS",
-        //        unit_price = (double)request.Monto
-        //    }
-        //},
-        //        back_urls = new
-        //        {
-        //            success = "https://tusitio.com/success",
-        //            failure = "https://tusitio.com/failure",
-        //            pending = "https://tusitio.com/pending"
-        //        },
-        //        auto_return = "approved"
-        //    };
-
-        //    var json = JsonSerializer.Serialize(preferenceRequest);
-        //    var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        //    var response = await client.PostAsync("/checkout/preferences", content);
-
-        //    if (!response.IsSuccessStatusCode)
-        //    {
-        //        var errorContent = await response.Content.ReadAsStringAsync();
-        //        throw new HttpRequestException($"Error Mercado Pago ({response.StatusCode}): {errorContent}");
-        //    }
-
-        //    var responseJson = await response.Content.ReadAsStringAsync();
-        //    using var doc = JsonDocument.Parse(responseJson);
-
-        //    var initPoint = doc.RootElement.GetProperty("init_point").GetString();
-        //    var preferenceId = doc.RootElement.GetProperty("id").GetString();
 
             // guardar pago en bdd
             var payment = new Payment
@@ -131,7 +88,7 @@ namespace Application.Services
             if (request.Monto <= 0)
                 return null;
             //validar que el usuario existe (esta logueado)
-            //juntar este post con el de mercado pago
+
 
             var payment = new Payment
             {
