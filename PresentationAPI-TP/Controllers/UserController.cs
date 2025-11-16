@@ -88,5 +88,17 @@ namespace PresentationAPI_TP.Controllers
             return Ok(new { email, role });
         }
 
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            var deleted = _userService.DeleteUser(id);
+
+            if (!deleted)
+                return NotFound("Usuario no encontrado.");
+
+            return Ok("Usuario eliminado correctamente.");
+        }
+
     }
 }
