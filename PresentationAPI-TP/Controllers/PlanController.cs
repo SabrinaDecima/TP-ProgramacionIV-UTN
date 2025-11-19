@@ -16,6 +16,7 @@ namespace PresentationAPI_TP.Controllers
             _planService = planService;
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -23,6 +24,7 @@ namespace PresentationAPI_TP.Controllers
             return Ok(plans);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult GetById([FromRoute] int id)
         {
