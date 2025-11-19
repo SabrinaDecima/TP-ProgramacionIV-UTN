@@ -4,7 +4,6 @@ using Contracts.User.Request;
 using Contracts.User.Response;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using System;
 using System.Data;
 
 
@@ -132,7 +131,7 @@ namespace Application.Services
 
             if (!string.IsNullOrWhiteSpace(lastName))
             {
-                users = users.Where(u => u.Nombre.Contains(lastName, StringComparison.OrdinalIgnoreCase));
+                users = users.Where(u => u.Apellido.Contains(lastName, StringComparison.OrdinalIgnoreCase));
             }
 
             return users.Select(u => new UserResponse
