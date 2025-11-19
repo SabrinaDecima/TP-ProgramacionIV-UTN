@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Contracts.GymClass.Request;
 using Contracts.GymClass.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -16,7 +17,7 @@ namespace WebApi.Controllers
             _gymClassService = gymClassService;
         }
 
-    
+        [Authorize]
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -24,6 +25,7 @@ namespace WebApi.Controllers
             return Ok(classes); 
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
@@ -34,7 +36,7 @@ namespace WebApi.Controllers
             return Ok(gymClass); 
         }
 
- 
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
         [HttpPost]
         public IActionResult Create([FromBody] CreateGymClassRequest request)
         {
@@ -50,6 +52,7 @@ namespace WebApi.Controllers
             return Ok(); 
         }
 
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
         [HttpPut("{id}")]
         public IActionResult Update([FromRoute] int id , [FromBody] UpdateGymClassRequest request)
         {
@@ -64,6 +67,7 @@ namespace WebApi.Controllers
             return Ok(); 
         }
 
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

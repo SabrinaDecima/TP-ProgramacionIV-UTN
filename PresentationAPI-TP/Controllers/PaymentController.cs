@@ -18,6 +18,7 @@ namespace WebAPI.Controllers
             _paymentService = paymentService;
         }
 
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
         [HttpGet]
         public IActionResult Get()
         {
@@ -25,6 +26,7 @@ namespace WebAPI.Controllers
             return Ok(payments);
         }
 
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -33,6 +35,7 @@ namespace WebAPI.Controllers
                 return NotFound();
             return Ok(payment);
         }
+
         [Authorize]
         [HttpPost]
         public IActionResult Create(CreatePaymentRequest request)
@@ -50,6 +53,7 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public IActionResult Update(int id, UpdatePaymentRequest request)
         {
@@ -59,6 +63,7 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -68,6 +73,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
         [HttpGet("user/{userId}")]
         public IActionResult GetPaymentsByUser(int userId)
         {
@@ -78,6 +84,7 @@ namespace WebAPI.Controllers
             return Ok(payments);
         }
 
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
         [HttpGet("user/{userId}/payments/pending")]
         public IActionResult GetPendingPaymentsByUser(int userId)
         {
@@ -88,6 +95,7 @@ namespace WebAPI.Controllers
             return Ok(pendingPayments);
         }
 
+        [Authorize]
         [HttpPost("mercadopago")]
         public async Task<IActionResult> CreateMercadoPagoPayment([FromBody] CreateMercadoPagoRequest request)
         {

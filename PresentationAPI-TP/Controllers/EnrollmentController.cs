@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Contracts.Enrollment.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -15,6 +16,7 @@ namespace WebApi.Controllers
             _enrollmentService = enrollmentService;
         }
 
+        [Authorize]
         [HttpPost("enroll")]
         public IActionResult Enroll([FromBody] EnrollUserRequest request)
         {
@@ -33,6 +35,7 @@ namespace WebApi.Controllers
             return Ok(result.Message);
         }
 
+        [Authorize]
         [HttpDelete("unenroll")]
         public IActionResult Unenroll([FromBody] EnrollUserRequest request)
         {
