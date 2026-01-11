@@ -1,12 +1,10 @@
 ﻿using Application.Abstraction;
+using Application.Abstraction.ExternalService;
 using Application.Interfaces;
 using Contracts.User.Request;
 using Contracts.User.Response;
 using Domain.Entities;
-using Microsoft.AspNetCore.Identity;
 using System.Data;
-
-
 
 namespace Application.Services
 {
@@ -15,7 +13,8 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IPlanRepository _planRepository;
         private readonly IRoleRepository _roleRepository;
-        private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IPasswordService _passwordService;
+        private readonly IEmailService _emailService;
         
 
 
@@ -23,12 +22,14 @@ namespace Application.Services
             IUserRepository userRepository,
             IPlanRepository planRepository,
             IRoleRepository roleRepository,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordService passwordService,
+            IEmailService emailService)
         {
             _userRepository = userRepository;
             _planRepository = planRepository;
             _roleRepository = roleRepository;
-            _passwordHasher = passwordHasher;
+            _passwordService = passwordService;
+            _emailService = emailService;
         }
 
         public bool CreateUser(CreateUserRequest request)
@@ -67,7 +68,7 @@ namespace Application.Services
                 Rol = defaultRole
             };
 
-            user.Contraseña = _passwordHasher.HashPassword(user, request.Contraseña);
+            user.Contraseña = _passwordService.HashPassword(user, request.Contraseña);
 
             return _userRepository.CreateUser(user);
         }
@@ -195,5 +196,60 @@ namespace Application.Services
 
             return _userRepository.UpdateUser(userId, user);
         }
+
+        public async Task<bool> RequestPasswordResetAsync(string email)
+        {
+            var user = _userRepository.GetByEmail(email);
+            if (user == null)
+                return false;
+
+            // Generación de token si el mail es válido
+
+            var resetToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            user.PasswordResetToken = resetToken;
+            user.ResetTokenExpires = DateTime.UtcNow.AddHours(1);
+
+            if (!_userRepository.UpdateUser(user.Id, user))
+                return false;
+
+            // Envio de email con el token
+
+            var resetLink = $"http://localhost:4200/forgot-password?token={resetToken}";
+            var emailBody = $@"
+                <p>Hola {user.Nombre},</p>
+                <p>Para resetear tu contraseña, haz clic en el siguiente enlace:</p>
+                <a href='{resetLink}'>Resetear Contraseña</a>
+                <p>Este enlace expira en 1 hora.</p>";
+
+            await _emailService.SendEmailAsync(user.Email, "Resetear Contraseña - FunctionFit", emailBody);
+
+            return true;
+        }
+
+        public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(newPassword))
+                return false;
+
+            var users = _userRepository.GetUsers();
+            var user = users.FirstOrDefault(u => u.PasswordResetToken == token);
+
+            if (user == null || user.ResetTokenExpires < DateTime.UtcNow)
+                return false;
+
+            // Actualización de contraseña
+
+            user.Contraseña = _passwordService.HashPassword(user, newPassword);
+            user.PasswordResetToken = null;
+            user.ResetTokenExpires = null;
+
+            return _userRepository.UpdateUser(user.Id, user);
+        }
+
+         public async Task<User?> GetByEmailAsync(string email)
+        {
+            return _userRepository.GetByEmail(email);
+        }
+
     }
 }

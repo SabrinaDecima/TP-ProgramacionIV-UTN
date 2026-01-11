@@ -28,7 +28,7 @@ public static class ServiceCollectionExtension
             .AddAuthenticationConfiguration(builder)
             .AddAuthorizationConfiguration()
             .AddRepositories()
-            .AddExternalServices()
+            .AddExternalServices(builder)
             .AddHttpClients();
     }
 
@@ -91,11 +91,15 @@ public static class ServiceCollectionExtension
         return services;
     }
 
-    public static IServiceCollection AddExternalServices(this IServiceCollection services)
+    public static IServiceCollection AddExternalServices(this IServiceCollection services, WebApplicationBuilder builder)
     {
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+        services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IPaymentGateway, MercadoPagoService>();
+        services.AddScoped<IEmailService, EmailService>();
+
+        services.Configure<MailSettings>(builder.Configuration.GetSection("MailtrapSettings"));
 
         return services;
     }

@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Contracts.Login.Request;
 using Contracts.User.Request;
 using Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -32,19 +33,14 @@ namespace Api.Controllers
         {
             var result = _userService.CreateUser(request);
 
-            //if (result == "Usuario ya existe" || result == "Plan no encontrado" ||
-            //    result == "Rol no encontrado" || result == "Error al crear el usuario")
-            //{
-            //    return BadRequest(result);
-            //}
             if (!result)
-                return BadRequest();
+                return BadRequest(new { message = "No se pudo crear el usuario. Verifique los datos." });
 
-            return Ok("Se ha registrado el usuario con exito");
+            return Ok(new { message = "Se ha registrado el usuario con exito" });
         }
 
         [HttpPost("login")]
-        public ActionResult<string> Login([FromBody] LoginRequest request)
+        public ActionResult<string> Login([FromBody] Contracts.Login.Request.LoginRequest request)
         {
 
             var token = _authenticationService.Login(request);
@@ -56,5 +52,30 @@ namespace Api.Controllers
 
             return Ok(token);
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] Contracts.User.Request.ForgotPasswordRequest request)
+        {
+            var result = await _userService.RequestPasswordResetAsync(request.Email);
+
+            if (!result)
+                return BadRequest(new { message = "No se encontró usuario con ese email." });
+
+            return Ok(new { message = "Se ha enviado un enlace de reset a tu email." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] Contracts.User.Request.ResetPasswordRequest request)
+        {
+            var result = await _userService.ResetPasswordAsync(request.Token, request.NewPassword);
+
+            if (!result)
+                return BadRequest(new { message = "Token inválido o expirado." });
+
+            return Ok(new { message = "Contraseña actualizada correctamente." });
+        }
+
+
+
     }
 }

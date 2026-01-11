@@ -35,6 +35,10 @@ namespace Domain.Entities
 
         public List<Payment>? Pagos { get; set; } // Relacion con pagos (1 a muchos)
 
+        public string? PasswordResetToken { get; set; }
+        
+        public DateTime? ResetTokenExpires { get; set; }
+
     }
    
  }

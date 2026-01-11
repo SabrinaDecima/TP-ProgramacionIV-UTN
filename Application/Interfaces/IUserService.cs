@@ -1,5 +1,6 @@
 ﻿using Contracts.User.Request;
 using Contracts.User.Response;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,5 +21,11 @@ namespace Application.Interfaces
         bool DeleteUser(int id);
         bool ChangeUserPlan(int userId, int newPlanId);
         bool CreateUser(CreateUserRequest request);
+
+        Task<bool> RequestPasswordResetAsync(string email);
+
+        Task<bool> ResetPasswordAsync(string token, string newPassword);
+
+        Task<User>? GetByEmailAsync(string email);
     }
 }

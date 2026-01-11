@@ -133,6 +133,16 @@ namespace Infrastructure.Persistence
                 );
 
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("DefaultConnection", b => b.MigrationsAssembly("Infrastructure"));
+            }
+            base.OnConfiguring(optionsBuilder);
+        }
     }
-    }
+}
+
 
