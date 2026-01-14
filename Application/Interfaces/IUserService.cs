@@ -26,6 +26,6 @@ namespace Application.Interfaces
 
         Task<bool> ResetPasswordAsync(string token, string newPassword);
 
-        Task<User>? GetByEmailAsync(string email);
+        Task<User?> GetByEmailAsync(string email);
     }
 }

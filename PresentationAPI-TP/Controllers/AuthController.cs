@@ -40,17 +40,25 @@ namespace Api.Controllers
         }
 
         [HttpPost("login")]
-        public ActionResult<string> Login([FromBody] Contracts.Login.Request.LoginRequest request)
+        public async Task<ActionResult<object>> Login([FromBody] Contracts.Login.Request.LoginRequest request)
         {
-
             var token = _authenticationService.Login(request);
-
             if (string.IsNullOrEmpty(token))
-            {
                 return Unauthorized("Credenciales inválidas");
-            }
 
-            return Ok(token);
+            var user = await _userService.GetByEmailAsync(request.Email);
+
+            if (user == null || user.Rol == null)
+                return Unauthorized("Usuario no encontrado o sin rol asignado");
+
+            return Ok(new
+            {
+                token,
+                email = user.Email,
+                role = user.Rol.Nombre,
+                userId = user.Id,
+                name = $"{user.Nombre} {user.Apellido}".Trim()
+            });
         }
 
         [HttpPost("forgot-password")]
