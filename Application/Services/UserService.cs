@@ -205,7 +205,7 @@ namespace Application.Services
 
             // Generación de token si el mail es válido
 
-            var resetToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            var resetToken = Guid.NewGuid().ToString();
             user.PasswordResetToken = resetToken;
             user.ResetTokenExpires = DateTime.UtcNow.AddHours(1);
 
@@ -214,7 +214,7 @@ namespace Application.Services
 
             // Envio de email con el token
 
-            var resetLink = $"http://localhost:4200/forgot-password?token={resetToken}";
+            var resetLink = $"http://localhost:4200/reset-password?token={resetToken}";
             var emailBody = $@"
                 <p>Hola {user.Nombre},</p>
                 <p>Para resetear tu contraseña, haz clic en el siguiente enlace:</p>
@@ -228,6 +228,8 @@ namespace Application.Services
 
         public async Task<bool> ResetPasswordAsync(string token, string newPassword)
         {
+            token = token.Trim();
+
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(newPassword))
                 return false;
 
