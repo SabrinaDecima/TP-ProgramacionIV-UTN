@@ -3,6 +3,7 @@ using Contracts.GymClass.Request;
 using Contracts.GymClass.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace WebApi.Controllers
 {
@@ -16,24 +17,39 @@ namespace WebApi.Controllers
         {
             _gymClassService = gymClassService;
         }
+        private int GetUserId()
+        {
+            var claim =
+                User.FindFirst("userId") ??
+                User.FindFirst("id") ??
+                User.FindFirst("sub");
+
+            if (claim == null)
+                throw new UnauthorizedAccessException("No se pudo obtener el userId del token");
+
+            return int.Parse(claim.Value);
+        }
 
         [Authorize]
         [HttpGet]
         public IActionResult GetAll()
         {
-            var classes = _gymClassService.GetAll();
-            return Ok(classes); 
+            var userId = GetUserId();
+            var classes = _gymClassService.GetAll(userId);
+            return Ok(classes);
         }
 
         [Authorize]
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var gymClass = _gymClassService.GetById(id);
-            if (gymClass == null)
-                return NotFound(); 
+            var userId = GetUserId();
+            var gymClass = _gymClassService.GetById(id, userId);
 
-            return Ok(gymClass); 
+            if (gymClass == null)
+                return NotFound();
+
+            return Ok(gymClass);
         }
 
         [Authorize(Roles = "Administrador, SuperAdministrador")]
@@ -76,6 +92,34 @@ namespace WebApi.Controllers
                 return NotFound("Clase de gimnasio no encontrada.");
 
             return Ok(); 
+        }
+
+
+        [Authorize]
+        [HttpPost("{id}/reserve")]
+        public IActionResult Reserve(int id)
+        {
+            var userId = GetUserId();
+
+            var reserved = _gymClassService.ReserveClass(id, userId);
+            if (!reserved)
+                return BadRequest("No se pudo reservar la clase.");
+
+            return Ok();
+        }
+
+
+        [Authorize]
+        [HttpDelete("{id}/reserve")]
+        public IActionResult CancelReservation(int id)
+        {
+            var userId = GetUserId();
+
+            var canceled = _gymClassService.CancelReservation(id, userId);
+            if (!canceled)
+                return BadRequest("No se pudo cancelar la reserva.");
+
+            return Ok();
         }
     }
 }

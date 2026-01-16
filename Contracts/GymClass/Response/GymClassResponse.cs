@@ -17,6 +17,7 @@ namespace Contracts.GymClass.Response
         public DayOfTheWeek Dia { get; set; }
 
         public string Hora {  get; set; }
+        public bool IsReservedByUser { get; set; }
     }
 }
     
