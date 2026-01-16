@@ -91,7 +91,9 @@ namespace Application.Services
             return new EnrollmentResponse
             {
                 Success = updated,
-                Message = updated ? "Inscripción exitosa." : "Error al actualizar la inscripción."
+                Message = updated ? "Inscripción exitosa." : "Error al actualizar la inscripción.",
+                GymClassId = request.GymClassId,
+                IsReserved = updated ? true : (bool?)null
             };
 
         }
@@ -129,7 +131,9 @@ namespace Application.Services
             return new EnrollmentResponse
             {
                 Success = updated,
-                Message = updated ? "Baja de clase exitosa." : "Error al procesar la baja."
+                Message = updated ? "Baja de clase exitosa." : "Error al procesar la baja.",
+                GymClassId = request.GymClassId,
+                IsReserved = updated ? false : (bool?)null
             };
         }
 

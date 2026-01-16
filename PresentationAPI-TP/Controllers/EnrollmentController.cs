@@ -32,7 +32,7 @@ namespace WebApi.Controllers
                 return BadRequest(result.Message);
             }
 
-            return Ok(result.Message);
+            return Ok(result);
         }
 
         [Authorize]
@@ -52,7 +52,7 @@ namespace WebApi.Controllers
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            return Ok(result.Message);
+            return Ok(result);
         }
     }
 }
