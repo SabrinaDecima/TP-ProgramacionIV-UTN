@@ -88,12 +88,15 @@ namespace Application.Services
 
             var updated = _userRepository.UpdateUser(user.Id, user);
 
+            var updatedClass = _gymClassRepository.GetByIdWithUsers(request.GymClassId);
             return new EnrollmentResponse
             {
                 Success = updated,
                 Message = updated ? "Inscripción exitosa." : "Error al actualizar la inscripción.",
                 GymClassId = request.GymClassId,
-                IsReserved = updated ? true : (bool?)null
+                IsReserved = updated ? true : (bool?)null,
+                CurrentEnrollments = updatedClass?.Users.Count,
+                MaxCapacity = updatedClass?.MaxCapacityUser
             };
 
         }
@@ -128,12 +131,15 @@ namespace Application.Services
 
             var updated = _userRepository.UpdateUser(user.Id, user);
 
+            var updatedClass = _gymClassRepository.GetByIdWithUsers(request.GymClassId);
             return new EnrollmentResponse
             {
                 Success = updated,
                 Message = updated ? "Baja de clase exitosa." : "Error al procesar la baja.",
                 GymClassId = request.GymClassId,
-                IsReserved = updated ? false : (bool?)null
+                IsReserved = updated ? false : (bool?)null,
+                CurrentEnrollments = updatedClass?.Users.Count,
+                MaxCapacity = updatedClass?.MaxCapacityUser
             };
         }
 
@@ -144,9 +150,9 @@ namespace Application.Services
 
             var limite = user.PlanId switch
             {
-                1 => 1, //plan basico 1 clase por semana
-                2 => 2, //plan premium 2
-                3 => 3, //plan elite 3
+                1 => 5, //plan basico 1 clase por semana
+                2 => 10, //plan premium 2
+                3 => 15, //plan elite 3
             };
 
             return (user.GymClasses?.Count ?? 0) < limite;

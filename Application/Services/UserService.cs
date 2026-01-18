@@ -253,5 +253,29 @@ namespace Application.Services
             return _userRepository.GetByEmail(email);
         }
 
+        public UserProfileResponse? GetProfile(int userId)
+        {
+            var user = _userRepository.GetUserWithClasses(userId);
+            if (user == null) return null;
+
+            return new UserProfileResponse
+            {
+                Id = user.Id,
+                Nombre = user.Nombre,
+                Apellido = user.Apellido,
+                Email = user.Email,
+                Telefono = user.Telefono,
+                PlanId = user.PlanId ?? 0,
+                EnrolledClassesCount = user.GymClasses?.Count ?? 0,
+                EnrolledClasses = user.GymClasses?.Select(gc => new GymClassSummary
+                {
+                    Id = gc.Id,
+                    Nombre = gc.Nombre,
+                    Dia = (int)gc.Dia,
+                    Hora = gc.Hora
+                }).ToList() ?? new List<GymClassSummary>()
+            };
+        }
+
     }
 }

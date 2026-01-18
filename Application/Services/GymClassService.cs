@@ -15,7 +15,7 @@ namespace Application.Services
             _gymClassRepository = gymClassRepository;
         }
 
-        // 🔹 GET ALL con estado de reserva
+        // 🔹 GET ALL con estado de reserva + cupos
         public List<GymClassResponse> GetAll(int userId)
         {
             var classes = _gymClassRepository.GetAllWithUsers();
@@ -29,11 +29,13 @@ namespace Application.Services
                 ImageUrl = gc.ImageUrl,
                 Dia = gc.Dia,
                 Hora = gc.Hora,
-                IsReservedByUser = gc.Users.Any(u => u.Id == userId)
+                IsReservedByUser = gc.Users.Any(u => u.Id == userId),
+                MaxCapacity = gc.MaxCapacityUser,           
+                CurrentEnrollments = gc.Users.Count         
             }).ToList();
         }
 
-        // 🔹 GET BY ID con estado de reserva
+        // 🔹 GET BY ID con estado de reserva + cupos
         public GymClassResponse? GetById(int id, int userId)
         {
             var gc = _gymClassRepository.GetByIdWithUsers(id);
@@ -48,7 +50,9 @@ namespace Application.Services
                 ImageUrl = gc.ImageUrl,
                 Dia = gc.Dia,
                 Hora = gc.Hora,
-                IsReservedByUser = gc.Users.Any(u => u.Id == userId)
+                IsReservedByUser = gc.Users.Any(u => u.Id == userId),
+                MaxCapacity = gc.MaxCapacityUser,           
+                CurrentEnrollments = gc.Users.Count         
             };
         }
 

@@ -100,5 +100,20 @@ namespace PresentationAPI_TP.Controllers
             return Ok("Usuario eliminado correctamente.");
         }
 
+        [Authorize]
+        [HttpGet("me")]
+        public IActionResult GetMe()
+        {
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var profile = _userService.GetProfile(userId);
+            if (profile == null)
+                return NotFound();
+
+            return Ok(profile); 
+        }
+
     }
 }

@@ -18,6 +18,8 @@ namespace Contracts.GymClass.Response
 
         public string Hora {  get; set; }
         public bool IsReservedByUser { get; set; }
+        public int MaxCapacity { get; set; }
+        public int CurrentEnrollments { get; set; }
     }
 }
     

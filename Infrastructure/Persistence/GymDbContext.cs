@@ -95,42 +95,317 @@ namespace Infrastructure.Persistence
             );
 
             // Seed de GymClass
+            // Seed de GymClass
             modelBuilder.Entity<GymClass>().HasData(
+                // === YOGA (capacidad = 3) ===
                 new GymClass
                 {
                     Id = 1,
                     Nombre = "Yoga",
                     Descripcion = "Clase de relajación y estiramiento",
                     DuracionMinutos = 60,
-                    ImageUrl = "images/yoga.jpg",
+                    ImageUrl = "https://placehold.co/600x400?text=Yoga&font=montserrat",
+                    Dia = DayOfTheWeek.Lunes,
+                    Hora = "08:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 2,
+                    Nombre = "Yoga",
+                    Descripcion = "Clase de relajación y estiramiento",
+                    DuracionMinutos = 60,
+                    ImageUrl = "https://placehold.co/600x400?text=Yoga&font=montserrat",
                     Dia = DayOfTheWeek.Lunes,
                     Hora = "18:00",
                     MaxCapacityUser = 3
                 },
                 new GymClass
                 {
-                    Id = 2,
+                    Id = 3,
+                    Nombre = "Yoga",
+                    Descripcion = "Clase de relajación y estiramiento",
+                    DuracionMinutos = 60,
+                    ImageUrl = "https://placehold.co/600x400?text=Yoga&font=montserrat",
+                    Dia = DayOfTheWeek.Miercoles,
+                    Hora = "08:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 4,
+                    Nombre = "Yoga",
+                    Descripcion = "Clase de relajación y estiramiento",
+                    DuracionMinutos = 60,
+                    ImageUrl = "https://placehold.co/600x400?text=Yoga&font=montserrat",
+                    Dia = DayOfTheWeek.Miercoles,
+                    Hora = "19:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 5,
+                    Nombre = "Yoga",
+                    Descripcion = "Clase de relajación y estiramiento",
+                    DuracionMinutos = 60,
+                    ImageUrl = "https://placehold.co/600x400?text=Yoga&font=montserrat",
+                    Dia = DayOfTheWeek.Viernes,
+                    Hora = "08:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 6,
+                    Nombre = "Yoga",
+                    Descripcion = "Clase de relajación y estiramiento",
+                    DuracionMinutos = 60,
+                    ImageUrl = "https://placehold.co/600x400?text=Yoga&font=montserrat",
+                    Dia = DayOfTheWeek.Viernes,
+                    Hora = "17:00",
+                    MaxCapacityUser = 3
+                },
+
+                // === CROSSFIT (capacidad = 3) ===
+                new GymClass
+                {
+                    Id = 7,
                     Nombre = "CrossFit",
                     Descripcion = "Entrenamiento funcional de alta intensidad",
                     DuracionMinutos = 45,
-                    ImageUrl = "images/crossfit.jpg",
+                    ImageUrl = "https://placehold.co/600x400?text=CrossFit&font=montserrat",
+                    Dia = DayOfTheWeek.Martes,
+                    Hora = "07:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 8,
+                    Nombre = "CrossFit",
+                    Descripcion = "Entrenamiento funcional de alta intensidad",
+                    DuracionMinutos = 45,
+                    ImageUrl = "https://placehold.co/600x400?text=CrossFit&font=montserrat",
                     Dia = DayOfTheWeek.Martes,
                     Hora = "19:00",
                     MaxCapacityUser = 3
                 },
                 new GymClass
                 {
-                    Id = 3,
+                    Id = 9,
+                    Nombre = "CrossFit",
+                    Descripcion = "Entrenamiento funcional de alta intensidad",
+                    DuracionMinutos = 45,
+                    ImageUrl = "https://placehold.co/600x400?text=CrossFit&font=montserrat",
+                    Dia = DayOfTheWeek.Jueves,
+                    Hora = "07:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 10,
+                    Nombre = "CrossFit",
+                    Descripcion = "Entrenamiento funcional de alta intensidad",
+                    DuracionMinutos = 45,
+                    ImageUrl = "https://placehold.co/600x400?text=CrossFit&font=montserrat",
+                    Dia = DayOfTheWeek.Jueves,
+                    Hora = "20:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 11,
+                    Nombre = "CrossFit",
+                    Descripcion = "Entrenamiento funcional de alta intensidad",
+                    DuracionMinutos = 45,
+                    ImageUrl = "https://placehold.co/600x400?text=CrossFit&font=montserrat",
+                    Dia = DayOfTheWeek.Sabado,
+                    Hora = "09:00",
+                    MaxCapacityUser = 3
+                },
+                new GymClass
+                {
+                    Id = 12,
+                    Nombre = "CrossFit",
+                    Descripcion = "Entrenamiento funcional de alta intensidad",
+                    DuracionMinutos = 45,
+                    ImageUrl = "https://placehold.co/600x400?text=CrossFit&font=montserrat",
+                    Dia = DayOfTheWeek.Sabado,
+                    Hora = "11:00",
+                    MaxCapacityUser = 3
+                },
+
+                // === SPINNING (capacidad = 15) ===
+                new GymClass
+                {
+                    Id = 13,
                     Nombre = "Spinning",
                     Descripcion = "Ejercicio cardiovascular en bicicleta",
                     DuracionMinutos = 50,
-                    ImageUrl = "images/spinning.jpg",
+                    ImageUrl = "https://placehold.co/600x400?text=Spinning&font=montserrat",
+                    Dia = DayOfTheWeek.Lunes,
+                    Hora = "20:00",
+                    MaxCapacityUser = 15
+                },
+                new GymClass
+                {
+                    Id = 14,
+                    Nombre = "Spinning",
+                    Descripcion = "Ejercicio cardiovascular en bicicleta",
+                    DuracionMinutos = 50,
+                    ImageUrl = "https://placehold.co/600x400?text=Spinning&font=montserrat",
+                    Dia = DayOfTheWeek.Martes,
+                    Hora = "20:00",
+                    MaxCapacityUser = 15
+                },
+                new GymClass
+                {
+                    Id = 15,
+                    Nombre = "Spinning",
+                    Descripcion = "Ejercicio cardiovascular en bicicleta",
+                    DuracionMinutos = 50,
+                    ImageUrl = "https://placehold.co/600x400?text=Spinning&font=montserrat",
                     Dia = DayOfTheWeek.Miercoles,
                     Hora = "20:00",
                     MaxCapacityUser = 15
+                },
+                new GymClass
+                {
+                    Id = 16,
+                    Nombre = "Spinning",
+                    Descripcion = "Ejercicio cardiovascular en bicicleta",
+                    DuracionMinutos = 50,
+                    ImageUrl = "https://placehold.co/600x400?text=Spinning&font=montserrat",
+                    Dia = DayOfTheWeek.Jueves,
+                    Hora = "20:00",
+                    MaxCapacityUser = 15
+                },
+                new GymClass
+                {
+                    Id = 17,
+                    Nombre = "Spinning",
+                    Descripcion = "Ejercicio cardiovascular en bicicleta",
+                    DuracionMinutos = 50,
+                    ImageUrl = "https://placehold.co/600x400?text=Spinning&font=montserrat",
+                    Dia = DayOfTheWeek.Viernes,
+                    Hora = "20:00",
+                    MaxCapacityUser = 15
+                },
+                new GymClass
+                {
+                    Id = 18,
+                    Nombre = "Spinning",
+                    Descripcion = "Ejercicio cardiovascular en bicicleta",
+                    DuracionMinutos = 50,
+                    ImageUrl = "https://placehold.co/600x400?text=Spinning&font=montserrat",
+                    Dia = DayOfTheWeek.Sabado,
+                    Hora = "18:00",
+                    MaxCapacityUser = 15
+                },
 
+                // === PILATES (capacidad = 5) ===
+                new GymClass
+                {
+                    Id = 19,
+                    Nombre = "Pilates",
+                    Descripcion = "Fortalecimiento y control postural",
+                    DuracionMinutos = 55,
+                    ImageUrl = "https://placehold.co/600x400?text=Pilates&font=montserrat",
+                    Dia = DayOfTheWeek.Martes,
+                    Hora = "18:00",
+                    MaxCapacityUser = 5
+                },
+                new GymClass
+                {
+                    Id = 20,
+                    Nombre = "Pilates",
+                    Descripcion = "Fortalecimiento y control postural",
+                    DuracionMinutos = 55,
+                    ImageUrl = "https://placehold.co/600x400?text=Pilates&font=montserrat",
+                    Dia = DayOfTheWeek.Jueves,
+                    Hora = "18:00",
+                    MaxCapacityUser = 5
+                },
+                new GymClass
+                {
+                    Id = 21,
+                    Nombre = "Pilates",
+                    Descripcion = "Fortalecimiento y control postural",
+                    DuracionMinutos = 55,
+                    ImageUrl = "https://placehold.co/600x400?text=Pilates&font=montserrat",
+                    Dia = DayOfTheWeek.Sabado,
+                    Hora = "10:00",
+                    MaxCapacityUser = 5
+                },
+
+                // === BOXEO (capacidad = 8) ===
+                new GymClass
+                {
+                    Id = 22,
+                    Nombre = "Boxeo",
+                    Descripcion = "Técnica, sacos y condición física",
+                    DuracionMinutos = 60,
+                    ImageUrl = "https://placehold.co/600x400?text=Boxeo&font=montserrat",
+                    Dia = DayOfTheWeek.Lunes,
+                    Hora = "19:00",
+                    MaxCapacityUser = 8
+                },
+                new GymClass
+                {
+                    Id = 23,
+                    Nombre = "Boxeo",
+                    Descripcion = "Técnica, sacos y condición física",
+                    DuracionMinutos = 60,
+                    ImageUrl = "https://placehold.co/600x400?text=Boxeo&font=montserrat",
+                    Dia = DayOfTheWeek.Miercoles,
+                    Hora = "19:00",
+                    MaxCapacityUser = 8
+                },
+                new GymClass
+                {
+                    Id = 24,
+                    Nombre = "Boxeo",
+                    Descripcion = "Técnica, sacos y condición física",
+                    DuracionMinutos = 60,
+                    ImageUrl = "https://placehold.co/600x400?text=Boxeo&font=montserrat",
+                    Dia = DayOfTheWeek.Viernes,
+                    Hora = "19:00",
+                    MaxCapacityUser = 8
+                },
+
+                // === ZUMBA (capacidad = 20) ===
+                new GymClass
+                {
+                    Id = 25,
+                    Nombre = "Zumba",
+                    Descripcion = "Baile y ritmo latino para quemar calorías",
+                    DuracionMinutos = 50,
+                    ImageUrl = "https://placehold.co/600x400?text=Zumba&font=montserrat",
+                    Dia = DayOfTheWeek.Martes,
+                    Hora = "20:30",
+                    MaxCapacityUser = 20
+                },
+                new GymClass
+                {
+                    Id = 26,
+                    Nombre = "Zumba",
+                    Descripcion = "Baile y ritmo latino para quemar calorías",
+                    DuracionMinutos = 50,
+                    ImageUrl = "https://placehold.co/600x400?text=Zumba&font=montserrat",
+                    Dia = DayOfTheWeek.Jueves,
+                    Hora = "20:30",
+                    MaxCapacityUser = 20
+                },
+                new GymClass
+                {
+                    Id = 27,
+                    Nombre = "Zumba",
+                    Descripcion = "Baile y ritmo latino para quemar calorías",
+                    DuracionMinutos = 50,
+                    ImageUrl = "https://placehold.co/600x400?text=Zumba&font=montserrat",
+                    Dia = DayOfTheWeek.Sabado,
+                    Hora = "12:00",
+                    MaxCapacityUser = 20
                 }
-                );
+            );
 
         }
 
