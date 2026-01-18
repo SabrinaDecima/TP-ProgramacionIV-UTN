@@ -34,6 +34,7 @@ namespace Domain.Entities
         public Plan? Plan { get; set; } // relacion con plan (1 a 1)
 
         public List<Payment>? Pagos { get; set; } // Relacion con pagos (1 a muchos)
+        public List<Historical> Historicals { get; set; } = new();
 
         public string? PasswordResetToken { get; set; }
         

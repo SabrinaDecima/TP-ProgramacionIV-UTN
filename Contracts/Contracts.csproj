@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Historical\**" />
     <Compile Remove="Request\**" />
-    <EmbeddedResource Remove="Historical\**" />
     <EmbeddedResource Remove="Request\**" />
-    <None Remove="Historical\**" />
     <None Remove="Request\**" />
   </ItemGroup>
 

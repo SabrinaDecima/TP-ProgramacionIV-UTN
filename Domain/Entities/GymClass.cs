@@ -30,6 +30,7 @@ namespace Domain.Entities
 
         public int MaxCapacityUser { get; set; } = 3;
         public List<User> Users { get; set; } = new(); //relcion con usuarios 
+        public List<Historical> Historicals { get; set; } = new();
 
     }
 

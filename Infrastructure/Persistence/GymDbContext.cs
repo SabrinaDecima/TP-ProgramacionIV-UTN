@@ -15,6 +15,7 @@ namespace Infrastructure.Persistence
         public DbSet<Plan> Plans { get; set; }
         public DbSet<Role > Roles { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Historical> Historicals { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -65,6 +66,18 @@ namespace Infrastructure.Persistence
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Fecha)
                 .HasMaxLength(50);
+
+            modelBuilder.Entity<Historical>()
+               .HasOne(h => h.User)
+               .WithMany(u => u.Historicals)
+               .HasForeignKey(h => h.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Historical>()
+                .HasOne(h => h.GymClass)
+                .WithMany(g => g.Historicals)
+                .HasForeignKey(h => h.GymClassId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Seed de Planes
             modelBuilder.Entity<Plan>().HasData(
