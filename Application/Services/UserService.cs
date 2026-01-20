@@ -73,6 +73,46 @@ namespace Application.Services
             return _userRepository.CreateUser(user);
         }
 
+        //  Creación de usuario por Admin
+        public bool CreateUserByAdmin(CreateUserByAdminRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Nombre) ||
+                string.IsNullOrWhiteSpace(request.Email))
+                return false;
+
+            if (_userRepository.GetByEmail(request.Email) != null)
+                return false;
+
+            var plan = _planRepository.GetPlanById(request.PlanId);
+            if (plan == null)
+                return false;
+
+            var role = _roleRepository.GetById(request.RoleId);
+            if (role == null)
+                return false;
+            var user = new User
+            {
+                Nombre = request.Nombre,
+                Apellido = request.Apellido,
+                Email = request.Email,
+                Telefono = request.Telefono,
+                PlanId = request.PlanId,
+                RoleId = role.Id,
+                Plan = plan,
+                Rol = role
+            };
+
+            
+            user.Contraseña = _passwordService.HashPassword(user, request.Contraseña);
+
+
+            return _userRepository.CreateUser(user);
+
+
+        }
+
+
+
 
 
         public bool DeleteUser(int id)

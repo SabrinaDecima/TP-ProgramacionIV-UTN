@@ -22,6 +22,9 @@ namespace Application.Interfaces
         bool ChangeUserPlan(int userId, int newPlanId);
         bool CreateUser(CreateUserRequest request);
 
+        bool CreateUserByAdmin(CreateUserByAdminRequest request);
+
+
         Task<bool> RequestPasswordResetAsync(string email);
 
         Task<bool> ResetPasswordAsync(string token, string newPassword);

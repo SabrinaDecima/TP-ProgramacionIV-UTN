@@ -31,6 +31,26 @@ namespace PresentationAPI_TP.Controllers
             return Ok(users);
         }
 
+        // creación de usuario por admin
+
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
+        [HttpPost]
+        public IActionResult Create([FromBody] CreateUserByAdminRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = _userService.CreateUserByAdmin(request);
+
+            if (!created)
+                return BadRequest("No se pudo crear el usuario. Verifica datos y plan/rol válidos.");
+
+            return Ok("Usuario creado correctamente.");
+        }
+
+
+
+
         [Authorize(Roles = "Administrador, SuperAdministrador")]
 
         [HttpGet("{id}")]

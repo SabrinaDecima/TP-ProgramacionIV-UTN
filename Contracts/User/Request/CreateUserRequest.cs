@@ -27,4 +27,30 @@ namespace Contracts.User.Request
 
         
     }
+
+    public class CreateUserByAdminRequest
+    {
+        [Required]
+        public string Nombre { get; set; }
+
+        [Required]
+        public string Apellido { get; set; }
+
+        [Required, EmailAddress]
+        public string Email { get; set; }
+
+        public string Telefono { get; set; }
+
+        [Required]
+        public int PlanId { get; set; }
+
+        [Required]
+        public int RoleId { get; set; }
+
+        
+        [Required]
+        public string Contraseña { get; set; }
+
+    }
+
 }
