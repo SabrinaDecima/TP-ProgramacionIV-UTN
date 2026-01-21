@@ -81,7 +81,7 @@ namespace Application.Services
         }
 
         // 🔹 ADMIN
-        public bool CreateGymClass(CreateGymClassRequest request)
+        public GymClassResponse? CreateGymClass(CreateGymClassRequest request)
         {
             var gymClass = new GymClass
             {
@@ -90,11 +90,26 @@ namespace Application.Services
                 DuracionMinutos = request.DuracionMinutos,
                 ImageUrl = request.ImageUrl,
                 Dia = request.Dia,
-                Hora = request.Hora
+                Hora = request.Hora,
+                MaxCapacityUser = request.MaxCapacity
             };
 
             var created = _gymClassRepository.CreateGymClass(gymClass);
-            return created != null;
+            if (created == null) return null;
+
+            return new GymClassResponse
+            {
+                Id = created.Id,
+                Nombre = created.Nombre,
+                Descripcion = created.Descripcion,
+                DuracionMinutos = created.DuracionMinutos,
+                ImageUrl = created.ImageUrl,
+                Dia = created.Dia,
+                Hora = created.Hora,
+                IsReservedByUser = false,
+                MaxCapacity = created.MaxCapacityUser,
+                CurrentEnrollments = 0
+            };
         }
 
         public bool UpdateGymClass(int id, UpdateGymClassRequest request)
