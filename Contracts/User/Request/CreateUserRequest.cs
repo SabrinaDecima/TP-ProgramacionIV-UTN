@@ -41,8 +41,8 @@ namespace Contracts.User.Request
 
         public string Telefono { get; set; }
 
-        [Required]
-        public int PlanId { get; set; }
+        
+        public int? PlanId { get; set; }
 
         [Required]
         public int RoleId { get; set; }

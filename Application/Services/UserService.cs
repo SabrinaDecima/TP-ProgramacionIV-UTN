@@ -77,26 +77,43 @@ namespace Application.Services
         public bool CreateUserByAdmin(CreateUserByAdminRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Nombre) ||
-                string.IsNullOrWhiteSpace(request.Email))
+       string.IsNullOrWhiteSpace(request.Apellido) ||
+       string.IsNullOrWhiteSpace(request.Email) ||
+       string.IsNullOrWhiteSpace(request.Contraseña))
                 return false;
+
 
             if (_userRepository.GetByEmail(request.Email) != null)
-                return false;
-
-            var plan = _planRepository.GetPlanById(request.PlanId);
-            if (plan == null)
                 return false;
 
             var role = _roleRepository.GetById(request.RoleId);
             if (role == null)
                 return false;
+
+            // Validar plan solo si el rol es Socio
+            Plan plan = null;
+            int? planId = null;
+
+            if (role.Id == 1) 
+            {
+                if (request.PlanId == null)
+                    return false;
+
+                plan = _planRepository.GetPlanById(request.PlanId.Value);
+                if (plan == null)
+                    return false;
+
+                planId = plan.Id;
+            }
+
+
             var user = new User
             {
                 Nombre = request.Nombre,
                 Apellido = request.Apellido,
                 Email = request.Email,
                 Telefono = request.Telefono,
-                PlanId = request.PlanId,
+                PlanId = planId,
                 RoleId = role.Id,
                 Plan = plan,
                 Rol = role

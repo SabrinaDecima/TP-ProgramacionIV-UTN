@@ -43,9 +43,9 @@ namespace PresentationAPI_TP.Controllers
             var created = _userService.CreateUserByAdmin(request);
 
             if (!created)
-                return BadRequest("No se pudo crear el usuario. Verifica datos y plan/rol válidos.");
+                return BadRequest(new { message = "No se pudo crear el usuario. Verifica datos y plan/rol válidos." });
 
-            return Ok("Usuario creado correctamente.");
+            return Ok(new { message = "Usuario creado correctamente." });
         }
 
 
