@@ -17,5 +17,6 @@ namespace Contracts.GymClass.Request
         public DayOfTheWeek Dia { get; set; }
 
         public string Hora {  get; set; }
+        public int MaxCapacity { get; set; } = 10;
     }
 }

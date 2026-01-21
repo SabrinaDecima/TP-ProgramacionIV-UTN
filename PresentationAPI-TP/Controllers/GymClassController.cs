@@ -56,16 +56,14 @@ namespace WebApi.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] CreateGymClassRequest request)
         {
-
             if (string.IsNullOrWhiteSpace(request.Nombre))
                 return BadRequest("El nombre es obligatorio.");
 
-
             var created = _gymClassService.CreateGymClass(request);
-            if (!created)
+            if (created == null)
                 return BadRequest("No se pudo crear la clase de gimnasio.");
 
-            return Ok(); 
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Administrador, SuperAdministrador")]

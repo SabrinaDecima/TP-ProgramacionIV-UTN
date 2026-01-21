@@ -16,7 +16,7 @@ namespace Application.Interfaces
         bool CancelReservation(int classId, int userId);
 
 
-        bool CreateGymClass(CreateGymClassRequest request);
+        GymClassResponse? CreateGymClass(CreateGymClassRequest request);
         bool UpdateGymClass(int id, UpdateGymClassRequest request);
         bool DeleteGymClass(int id);
     }
