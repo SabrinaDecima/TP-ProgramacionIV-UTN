@@ -21,35 +21,7 @@ namespace PresentationAPI_TP.Controllers
             _planService = planService;
         }
 
-        [Authorize(Roles = "Administrador, SuperAdministrador" )]
-
-        [HttpGet] 
-        public IActionResult GetAll()
-        {
-            var users = _userService.GetAll();
-            
-            return Ok(users);
-        }
-
-        // creación de usuario por admin
-
-        [Authorize(Roles = "Administrador, SuperAdministrador")]
-        [HttpPost]
-        public IActionResult Create([FromBody] CreateUserByAdminRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var created = _userService.CreateUserByAdmin(request);
-
-            if (!created)
-                return BadRequest(new { message = "No se pudo crear el usuario. Verifica datos y plan/rol válidos." });
-
-            return Ok(new { message = "Usuario creado correctamente." });
-        }
-
-
-
+       
 
         [Authorize(Roles = "Administrador, SuperAdministrador")]
 
@@ -108,17 +80,6 @@ namespace PresentationAPI_TP.Controllers
             return Ok(new { email, role });
         }
 
-        [Authorize(Roles = "Administrador, SuperAdministrador")]
-        [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute] int id)
-        {
-            var deleted = _userService.DeleteUser(id);
-
-            if (!deleted)
-                return NotFound("Usuario no encontrado.");
-
-            return Ok("Usuario eliminado correctamente.");
-        }
 
         [Authorize]
         [HttpGet("me")]

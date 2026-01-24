@@ -24,6 +24,7 @@ namespace Application.Interfaces
 
         bool CreateUserByAdmin(CreateUserByAdminRequest request);
 
+        bool UpdateUserByAdmin(int userId,UpdateUserByAdminRequest request);
 
         Task<bool> RequestPasswordResetAsync(string email);
 

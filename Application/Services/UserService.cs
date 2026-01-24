@@ -232,6 +232,43 @@ namespace Application.Services
             return _userRepository.UpdateUser(id, existingUser);
         }
 
+        public bool UpdateUserByAdmin(int id, UpdateUserByAdminRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Nombre) ||
+                string.IsNullOrWhiteSpace(request.Email))
+                return false;
+
+            var existingUser = _userRepository.GetById(id);
+            if (existingUser == null)
+                return false;
+
+            var role = _roleRepository.GetById(request.RoleId);
+            if (role == null)
+                return false;
+
+            Plan plan = null;
+            if (role.Id == 1) // Socio
+            {
+                if (request.PlanId == null)
+                    return false;
+
+                plan = _planRepository.GetPlanById(request.PlanId.Value);
+                if (plan == null)
+                    return false;
+            }
+
+            existingUser.Nombre = request.Nombre;
+            existingUser.Apellido = request.Apellido;
+            existingUser.Email = request.Email;
+            existingUser.Telefono = request.Telefono;
+            existingUser.RoleId = role.Id;
+            existingUser.Rol = role;
+            existingUser.PlanId = plan?.Id;
+            existingUser.Plan = plan;
+
+            return _userRepository.UpdateUser(id, existingUser);
+        }
+
 
 
         public bool ChangeUserPlan(int userId, int newPlanId)
