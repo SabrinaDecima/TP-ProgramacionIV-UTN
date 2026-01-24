@@ -66,7 +66,7 @@ namespace PresentationAPI_TP.Controllers
             if (!deleted)
                 return NotFound("Usuario no encontrado.");
 
-            return Ok("Usuario eliminado correctamente.");
+            return Ok(new { message = "Usuario eliminado correctamente." });
         }
 
 
