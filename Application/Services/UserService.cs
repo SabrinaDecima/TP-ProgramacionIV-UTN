@@ -155,7 +155,8 @@ namespace Application.Services
                     Email = u.Email,
                     Telefono = u.Telefono,
                     PlanId = u.PlanId ?? 0,
-               }).ToList();
+                    RoleId = u.RoleId
+                }).ToList();
 
             return userList;
         }
@@ -174,6 +175,7 @@ namespace Application.Services
                 Email = user.Email,
                 Telefono = user.Telefono,
                 PlanId = user.PlanId ?? 0,
+                RoleId = user.RoleId
             };
         }
 
