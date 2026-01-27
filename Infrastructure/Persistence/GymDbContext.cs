@@ -102,8 +102,8 @@ namespace Infrastructure.Persistence
 
             // Seed de Payments
             modelBuilder.Entity<Payment>().HasData(
-                new Payment { Id = 1, UserId = 1, Monto = 25.0m, Fecha = "2025-10-10", Pagado = true },
-                new Payment { Id = 2, UserId = 1, Monto = 25.0m, Fecha = "2025-11-10", Pagado = false },
+                new Payment { Id = 1, UserId = 1, Monto = 25.0m, Fecha = "2025-10-10", Pagado = false },
+                new Payment { Id = 2, UserId = 1, Monto = 25.0m, Fecha = "2025-11-10", Pagado = true },
                 new Payment { Id = 3, UserId = 2, Monto = 45.0m, Fecha = "2025-10-10", Pagado = true }
             );
 

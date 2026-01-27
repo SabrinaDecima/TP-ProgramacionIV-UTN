@@ -96,6 +96,36 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
+        [HttpGet("me")]
+        public IActionResult GetMyPayments()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(x => x.Type == "UserId");
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+            var payments = _paymentService.GetPaymentsByUserId(userId);
+
+            return Ok(payments);
+        }
+
+        [Authorize]
+        [HttpGet("me/payments/pending")]
+        public IActionResult GetMyPendingPayments()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(x => x.Type == "UserId");
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+            var payments = _paymentService.GetPendingPaymentsByUserId(userId);
+
+            return Ok(payments);
+        }
+
+
+
+        [Authorize]
         [HttpPost("mercadopago")]
         public async Task<IActionResult> CreateMercadoPagoPayment([FromBody] CreateMercadoPagoRequest request)
         {
