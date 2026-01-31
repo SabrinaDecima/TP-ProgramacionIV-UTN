@@ -111,35 +111,47 @@ namespace WebAPI.Controllers
 
         [Authorize]
         [HttpGet("me/payments/pending")]
-        public IActionResult GetMyPendingPayments()
+        public IActionResult GetMyPendingPayment()
         {
             var userIdClaim = User.Claims.FirstOrDefault(x => x.Type == "UserId");
             if (userIdClaim == null)
                 return Unauthorized();
 
             int userId = int.Parse(userIdClaim.Value);
-            var payments = _paymentService.GetPendingPaymentsByUserId(userId);
 
-            return Ok(payments);
+            var payment = _paymentService
+                .GetPendingPaymentsByUserId(userId)
+                .OrderBy(p => p.Fecha)
+                .FirstOrDefault();
+
+            return Ok(payment);
         }
 
 
 
         [Authorize]
         [HttpPost("mercadopago")]
-        public async Task<IActionResult> CreateMercadoPagoPayment([FromBody] CreateMercadoPagoRequest request)
+        public async Task<IActionResult> CreateMercadoPagoPayment(
+            [FromBody] CreateMercadoPagoRequest request)
         {
             if (request.Monto <= 0)
                 return BadRequest("El monto debe ser mayor a cero.");
 
-            var userId = User.Claims.FirstOrDefault(x => x.Type == "UserId");
-            if (userId != null)
-                request.UserId = int.Parse(userId.Value);
+            var userIdClaim = User.Claims.FirstOrDefault(x => x.Type == "UserId");
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            request.UserId = int.Parse(userIdClaim.Value);
 
             try
             {
-                var url = await _paymentService.CreatePaymentPreferenceAsync(request);
-                return Ok(new { Url = url });
+                // Devuelve el init_point de Mercado Pago
+                var initPoint = await _paymentService.CreatePaymentPreferenceAsync(request);
+
+                return Ok(new
+                {
+                    initPoint // 👈 nombre estándar de Mercado Pago
+                });
             }
             catch (InvalidOperationException ex)
             {
@@ -149,11 +161,12 @@ namespace WebAPI.Controllers
             {
                 return BadRequest($"Error de Mercado Pago: {ex.Message}");
             }
-            catch (Exception ex)
+            catch
             {
                 return StatusCode(500, "Error interno al procesar el pago.");
             }
         }
+
 
 
 
