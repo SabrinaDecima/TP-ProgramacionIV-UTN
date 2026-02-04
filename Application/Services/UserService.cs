@@ -15,7 +15,8 @@ namespace Application.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IPasswordService _passwordService;
         private readonly IEmailService _emailService;
-        
+        private readonly IPaymentRepository _paymentRepository;
+
 
 
         public UserService(
@@ -23,24 +24,26 @@ namespace Application.Services
             IPlanRepository planRepository,
             IRoleRepository roleRepository,
             IPasswordService passwordService,
-            IEmailService emailService)
+            IEmailService emailService,
+            IPaymentRepository paymentRepository)
         {
             _userRepository = userRepository;
             _planRepository = planRepository;
             _roleRepository = roleRepository;
             _passwordService = passwordService;
             _emailService = emailService;
+            _paymentRepository = paymentRepository;
         }
 
         public bool CreateUser(CreateUserRequest request)
         {
-            
+
             if (string.IsNullOrWhiteSpace(request.Nombre) ||
                 string.IsNullOrWhiteSpace(request.Email) ||
                 string.IsNullOrWhiteSpace(request.Contraseña))
                 return false;
 
-            
+
             if (_userRepository.GetByEmail(request.Email) != null)
                 return false;
 
@@ -54,7 +57,7 @@ namespace Application.Services
             if (defaultRole == null)
                 return false;
 
-          
+
 
             var user = new User
             {
@@ -70,7 +73,32 @@ namespace Application.Services
 
             user.Contraseña = _passwordService.HashPassword(user, request.Contraseña);
 
-            return _userRepository.CreateUser(user);
+            var created = _userRepository.CreateUser(user);
+            if (!created)
+                return false;
+
+            // Crear pago inicial (si tiene plan)
+            try
+            {
+                if (user.PlanId != null && plan != null)
+                {
+                    var initialPayment = new Payment
+                    {
+                        UserId = user.Id,
+                        Monto = plan.Precio,
+                        Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Pagado = false
+                    };
+
+                    _paymentRepository.CreatePayment(initialPayment);
+                }
+            }
+            catch
+            {
+                // No interrumpimos la creación del usuario por un fallo en pagos; podría registrarse un log aquí.
+            }
+
+            return true;
         }
 
         //  Creación de usuario por Admin
@@ -94,7 +122,7 @@ namespace Application.Services
             Plan plan = null;
             int? planId = null;
 
-            if (role.Id == 1) 
+            if (role.Id == 1)
             {
                 if (request.PlanId == null)
                     return false;
@@ -119,12 +147,35 @@ namespace Application.Services
                 Rol = role
             };
 
-            
+
             user.Contraseña = _passwordService.HashPassword(user, request.Contraseña);
 
+            var created = _userRepository.CreateUser(user);
+            if (!created)
+                return false;
 
-            return _userRepository.CreateUser(user);
+            // Crear pago inicial si el rol es Socio y tiene plan
+            try
+            {
+                if (role.Id == 1 && user.PlanId != null && plan != null)
+                {
+                    var initialPayment = new Payment
+                    {
+                        UserId = user.Id,
+                        Monto = plan.Precio,
+                        Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Pagado = false
+                    };
 
+                    _paymentRepository.CreatePayment(initialPayment);
+                }
+            }
+            catch
+            {
+                // Si falla la creación del pago, no revertimos la creación del usuario; se podría loguear.
+            }
+
+            return true;
 
         }
 
@@ -136,9 +187,9 @@ namespace Application.Services
         {
             var user = _userRepository.GetById(id);
 
-            if(user == null)
+            if (user == null)
             {
-              return false ;
+                return false;
             }
             return _userRepository.DeleteUser(user.Id);
         }
@@ -147,8 +198,8 @@ namespace Application.Services
         {
             var userList = _userRepository
                 .GetUsers()
-                .Select( u => new UserResponse
-                { 
+                .Select(u => new UserResponse
+                {
                     Id = u.Id,
                     Nombre = u.Nombre,
                     Apellido = u.Apellido,
@@ -165,7 +216,7 @@ namespace Application.Services
         {
             var user = _userRepository.GetById(id);
 
-            if(user == null) { return null; }
+            if (user == null) { return null; }
 
             return new UserResponse
             {
@@ -207,30 +258,30 @@ namespace Application.Services
 
         public bool UpdateUser(int id, UpdateUserRequest request)
         {
-            
+
             if (string.IsNullOrWhiteSpace(request.Nombre) ||
                 string.IsNullOrWhiteSpace(request.Email))
                 return false;
 
-            
+
             var existingUser = _userRepository.GetById(id);
             if (existingUser == null)
                 return false;
 
-            
+
             var plan = _planRepository.GetPlanById(request.PlanId);
             if (plan == null)
                 return false;
 
-          
+
             existingUser.Nombre = request.Nombre;
             existingUser.Apellido = request.Apellido;
             existingUser.Email = request.Email;
             existingUser.Telefono = request.Telefono;
             existingUser.PlanId = request.PlanId;
-            existingUser.Plan = plan; 
+            existingUser.Plan = plan;
 
-            
+
             return _userRepository.UpdateUser(id, existingUser);
         }
 
@@ -275,18 +326,18 @@ namespace Application.Services
 
         public bool ChangeUserPlan(int userId, int newPlanId)
         {
-            
+
             var newPlan = _planRepository.GetPlanById(newPlanId);
             if (newPlan == null) return false;
 
-            
+
             var user = _userRepository.GetById(userId);
             if (user == null) return false;
 
-           
+
             if (user.PlanId == newPlanId) return true;
 
-           
+
             user.PlanId = newPlanId;
             user.Plan = newPlan;
 
@@ -344,7 +395,7 @@ namespace Application.Services
             return _userRepository.UpdateUser(user.Id, user);
         }
 
-         public async Task<User?> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
             return _userRepository.GetByEmail(email);
         }
