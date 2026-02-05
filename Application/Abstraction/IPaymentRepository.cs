@@ -3,7 +3,7 @@
 
 namespace Application.Abstraction
 {
-    public interface IPaymentRepository 
+    public interface IPaymentRepository
     {
         List<Payment> GetAll();
         Payment? GetById(int id);
@@ -15,6 +15,6 @@ namespace Application.Abstraction
         List<Payment> GetPaymentsByUserId(int userId);
 
         List<Payment> GetPendingPaymentsByUserId(int userId);
+        Payment? GetByPreferenceId(string preferenceId);
     }
 }
-

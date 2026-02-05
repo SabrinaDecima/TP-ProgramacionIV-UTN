@@ -3,6 +3,7 @@ using Contracts.GymClass.Request;
 using Contracts.Payment.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace WebAPI.Controllers
 {
@@ -40,11 +41,11 @@ namespace WebAPI.Controllers
         [HttpPost]
         public IActionResult Create(CreatePaymentRequest request)
         {
-            var userId = User.Claims.FirstOrDefault(x => x.Type== "UserId");
+            var userId = User.Claims.FirstOrDefault(x => x.Type == "UserId");
 
             if (request.Monto <= 0)
                 return BadRequest("El monto debe ser mayor a cero.");
-            request.UserId = int.Parse(userId.Value);   
+            request.UserId = int.Parse(userId.Value);
 
             var result = _paymentService.CreatePayment(request);
 
@@ -164,6 +165,41 @@ namespace WebAPI.Controllers
             catch
             {
                 return StatusCode(500, "Error interno al procesar el pago.");
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("mercadopago/webhook")]
+        public async Task<IActionResult> MercadoPagoWebhook([FromBody] JsonElement payload)
+        {
+            string paymentId = null;
+            try
+            {
+                if (payload.ValueKind == JsonValueKind.Object)
+                {
+                    if (payload.TryGetProperty("type", out var t) && t.GetString() == "payment" && payload.TryGetProperty("data", out var data) && data.TryGetProperty("id", out var idProp))
+                        paymentId = idProp.GetString();
+                    else if (payload.TryGetProperty("id", out var id))
+                        paymentId = id.GetString();
+                }
+
+                if (string.IsNullOrEmpty(paymentId))
+                {
+                    if (Request.Query.ContainsKey("topic") && Request.Query.ContainsKey("id") && Request.Query["topic"] == "payment")
+                    {
+                        paymentId = Request.Query["id"];
+                    }
+                }
+
+                if (string.IsNullOrEmpty(paymentId))
+                    return BadRequest("No se encontró id de pago en la notificación.");
+
+                await _paymentService.HandlePaymentNotificationAsync(paymentId);
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(500, "Error procesando notificación.");
             }
         }
 

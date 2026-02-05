@@ -1,5 +1,4 @@
-﻿
-using Contracts.GymClass.Request;
+﻿using Contracts.GymClass.Request;
 
 using Contracts.Payment.Request;
 using Contracts.Payment.Response;
@@ -16,5 +15,6 @@ namespace Application.Abstraction
         List<PaymentResponse> GetPaymentsByUserId(int userId);
         List<PaymentResponse> GetPendingPaymentsByUserId(int userId);
         Task<string> CreatePaymentPreferenceAsync(CreateMercadoPagoRequest request);
+        Task HandlePaymentNotificationAsync(string mercadoPagoPaymentId);
     }
 }

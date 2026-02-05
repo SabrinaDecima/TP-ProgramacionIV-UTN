@@ -1,5 +1,4 @@
-﻿
-using Application.Abstraction;
+﻿using Application.Abstraction;
 using Application.Abstraction.ExternalService;
 using Contracts.GymClass.Request;
 using Contracts.Payment.Request;
@@ -17,7 +16,7 @@ namespace Application.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentGateway _paymentGateway;
 
-      
+
 
         public PaymentService(IPaymentRepository paymentRepository, IPaymentGateway paymentGateway)
         {
@@ -44,7 +43,7 @@ namespace Application.Services
                 UserId = request.UserId, // viene de la request
                 Monto = request.Monto,
                 Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                Pagado = true,
+                Pagado = false,
                 PreferenceId = preferenceId,
                 InitPoint = initPoint
             };
@@ -53,6 +52,31 @@ namespace Application.Services
 
 
             return initPoint;
+        }
+
+        public async Task HandlePaymentNotificationAsync(string mercadoPagoPaymentId)
+        {
+            if (string.IsNullOrEmpty(mercadoPagoPaymentId)) return;
+
+            var (status, preferenceId) = await _paymentGateway.GetPaymentAsync(mercadoPagoPaymentId);
+            if (string.IsNullOrEmpty(preferenceId)) return;
+
+            var payment = _paymentRepository.GetByPreferenceId(preferenceId);
+            if (payment == null) return;
+
+            bool isPaid = string.Equals(status, "approved", StringComparison.OrdinalIgnoreCase) || string.Equals(status, "paid", StringComparison.OrdinalIgnoreCase);
+
+            if (isPaid && !payment.Pagado)
+            {
+                payment.Pagado = true;
+                payment.Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                _paymentRepository.UpdatePayment(payment);
+            }
+            else if (!isPaid && payment.Pagado)
+            {
+                payment.Pagado = false;
+                _paymentRepository.UpdatePayment(payment);
+            }
         }
 
         public List<PaymentResponse> GetAllPayments()

@@ -10,5 +10,6 @@ namespace Application.Abstraction.ExternalService
     public interface IPaymentGateway
     {
         Task<(string InitPoint, string PreferenceId)> CreatePreferenceAsync(CreateMercadoPagoRequest request);
+        Task<(string Status, string PreferenceId)> GetPaymentAsync(string paymentId);
     }
 }

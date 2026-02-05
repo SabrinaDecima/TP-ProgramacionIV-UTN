@@ -32,6 +32,8 @@ namespace Infrastructure.ExternalServices
             client.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
+            var frontendBase = _configuration["Frontend:BaseUrl"] ?? "http://localhost:4200";
+
             var preferenceRequest = new
             {
                 items = new[]
@@ -46,9 +48,9 @@ namespace Infrastructure.ExternalServices
             },
                 back_urls = new
                 {
-                    success = "https://tusitio.com/success",
-                    failure = "https://tusitio.com/failure",
-                    pending = "https://tusitio.com/pending"
+                    success = frontendBase + "/pagos",
+                    failure = frontendBase + "/pagos",
+                    pending = frontendBase + "/pagos"
                 },
                 auto_return = "approved"
             };
@@ -78,6 +80,32 @@ namespace Infrastructure.ExternalServices
             return (initPoint, preferenceId);
         }
 
+        public async Task<(string Status, string PreferenceId)> GetPaymentAsync(string paymentId)
+        {
+            var client = _httpClientFactory.CreateClient("MercadoPago");
+            var accessToken = _configuration["MercadoPago:AccessToken"];
+
+            if (string.IsNullOrEmpty(accessToken))
+                throw new InvalidOperationException("Access Token de Mercado Pago no configurado.");
+
+            client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await client.GetAsync($"/v1/payments/{paymentId}");
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error Mercado Pago ({response.StatusCode}): {errorContent}");
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(responseJson);
+
+            var status = doc.RootElement.GetProperty("status").GetString() ?? string.Empty;
+            var preferenceId = doc.RootElement.TryGetProperty("preference_id", out var pref) ? pref.GetString() ?? string.Empty : string.Empty;
+
+            return (status, preferenceId);
+        }
 
     }
 }
