@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Services;
 using Application.Services.Implementations;
 using Contracts.User.Request;
 using Microsoft.AspNetCore.Authorization;
@@ -12,11 +13,12 @@ namespace PresentationAPI_TP.Controllers
     public class AdminUserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IGymClassService _gymClassService;
 
-        public AdminUserController(IUserService userService)
+        public AdminUserController(IUserService userService, IGymClassService gymClassService)
         {
             _userService = userService;
-            
+            _gymClassService = gymClassService;
         }
 
 
@@ -67,6 +69,44 @@ namespace PresentationAPI_TP.Controllers
                 return NotFound("Usuario no encontrado.");
 
             return Ok(new { message = "Usuario eliminado correctamente." });
+        }
+
+        [Authorize(Roles = "SuperAdministrador")]
+        [HttpGet("activity-summary")]
+        public IActionResult GetActivitySummary()
+        {
+            var allUsers = _userService.GetAll();
+
+            var stats = new
+            {
+                TotalUsers = allUsers.Count,
+                TotalAdmins = allUsers.Count(u => u.RoleId == 2 || u.RoleId == 3),
+                TotalSocios = allUsers.Count(u => u.RoleId == 1),
+                TotalClasses = _gymClassService.GetAll(0).Count 
+            };
+
+            var recentUsers = allUsers
+                .OrderByDescending(u => u.Id)
+                .Take(10)
+                .Select(u => new
+                {
+                    u.Email,
+                    Role = u.RoleId switch
+                    {
+                        1 => "Socio",
+                        2 => "Administrador",
+                        3 => "SuperAdministrador",
+                        _ => "Desconocido"
+                    },
+                    Plan = u.RoleId == 1
+                        ? (u.PlanId == 1 ? "Basic" :
+                           u.PlanId == 2 ? "Premium" :
+                           u.PlanId == 3 ? "Elite" : "Sin plan")
+                        : "N/A"
+                })
+                .ToList();
+
+            return Ok(new { stats, recentUsers });
         }
 
 
