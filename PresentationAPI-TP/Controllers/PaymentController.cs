@@ -169,6 +169,24 @@ namespace WebAPI.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("mercadopago/publickey")]
+        public IActionResult GetMercadoPagoPublicKey()
+        {
+            try
+            {
+                var publicKey = _paymentService.GetMercadoPagoPublicKey();
+                if (string.IsNullOrEmpty(publicKey))
+                    return BadRequest("MercadoPago Public Key no configurado.");
+
+                return Ok(new { publicKey });
+            }
+            catch
+            {
+                return StatusCode(500, "Error obteniendo Public Key de MercadoPago.");
+            }
+        }
+
+        [AllowAnonymous]
         [HttpPost("mercadopago/webhook")]
         public async Task<IActionResult> MercadoPagoWebhook([FromBody] JsonElement payload)
         {

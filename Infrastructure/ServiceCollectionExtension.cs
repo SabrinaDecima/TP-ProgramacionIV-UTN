@@ -110,12 +110,13 @@ public static class ServiceCollectionExtension
         services.AddHttpClient("MercadoPago", client =>
         {
             client.BaseAddress = new Uri("https://api.mercadopago.com/");
+            client.Timeout = TimeSpan.FromSeconds(30);
         })
         .AddPolicyHandler(Policy
             .Handle<HttpRequestException>()
-            .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+            .OrResult<HttpResponseMessage>(r => (int)r.StatusCode >= 500) // Solo reintentar en errores de servidor (5xx)
             .WaitAndRetryAsync(
-                retryCount: 3,
+                retryCount: 2,
                 sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
             ));
 

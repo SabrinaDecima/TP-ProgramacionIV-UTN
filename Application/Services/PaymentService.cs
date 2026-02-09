@@ -15,13 +15,15 @@ namespace Application.Services
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentGateway _paymentGateway;
+        private readonly IConfiguration _configuration;
 
 
 
-        public PaymentService(IPaymentRepository paymentRepository, IPaymentGateway paymentGateway)
+        public PaymentService(IPaymentRepository paymentRepository, IPaymentGateway paymentGateway, IConfiguration configuration)
         {
             _paymentRepository = paymentRepository;
             _paymentGateway = paymentGateway;
+            _configuration = configuration;
         }
 
 
@@ -191,5 +193,11 @@ namespace Application.Services
                 Pagado = p.Pagado
             }).ToList();
         }
+
+        public string GetMercadoPagoPublicKey()
+        {
+            return _configuration["MercadoPago:PublicKey"] ?? string.Empty;
+        }
     }
 }
+    

@@ -16,5 +16,6 @@ namespace Application.Abstraction
         List<PaymentResponse> GetPendingPaymentsByUserId(int userId);
         Task<string> CreatePaymentPreferenceAsync(CreateMercadoPagoRequest request);
         Task HandlePaymentNotificationAsync(string mercadoPagoPaymentId);
+        string GetMercadoPagoPublicKey();
     }
 }
