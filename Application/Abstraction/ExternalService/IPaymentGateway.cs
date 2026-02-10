@@ -11,5 +11,7 @@ namespace Application.Abstraction.ExternalService
     {
         Task<(string InitPoint, string PreferenceId)> CreatePreferenceAsync(CreateMercadoPagoRequest request);
         Task<(string Status, string PreferenceId)> GetPaymentAsync(string paymentId);
+        Task<(string Status, string PaymentId)> GetPaymentByPreferenceAsync(string preferenceId);
+        Task<(string Status, string PaymentId)> GetPaymentByPreferenceIdAsync(string preferenceId);
     }
 }

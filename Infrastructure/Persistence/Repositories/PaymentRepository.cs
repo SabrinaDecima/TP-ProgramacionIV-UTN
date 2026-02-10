@@ -63,10 +63,5 @@ namespace Infrastructure.Repositories
                 .Where(p => p.UserId == userId && !p.Pagado)
                 .ToList();
         }
-
-        public Payment? GetByPreferenceId(string preferenceId)
-        {
-            return _context.Payments.Include(p => p.User).FirstOrDefault(p => p.PreferenceId == preferenceId);
-        }
     }
 }

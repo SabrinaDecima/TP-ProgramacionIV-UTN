@@ -11,5 +11,6 @@ namespace Contracts.Payment.Request
         public int UserId { get; set; }
         public decimal Monto { get; set; }
         public string? Descripcion { get; set; }
+        public string? Email { get; set; }
     }
 }

@@ -27,22 +27,17 @@ namespace Application.Services
         }
 
 
-        public async Task<string> CreatePaymentPreferenceAsync(CreateMercadoPagoRequest request)
+        public async Task<(string InitPoint, string PreferenceId)> CreatePaymentPreferenceAsync(CreateMercadoPagoRequest request)
         {
             if (request.Monto <= 0)
                 throw new ArgumentException("El monto debe ser mayor a cero.");
 
-
-
             var (initPoint, preferenceId) = await _paymentGateway.CreatePreferenceAsync(request);
 
-
-
-
-            // guardar pago en bdd
+            // Crear el pago en la base de datos como pendiente
             var payment = new Payment
             {
-                UserId = request.UserId, // viene de la request
+                UserId = request.UserId,
                 Monto = request.Monto,
                 Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                 Pagado = false,
@@ -52,21 +47,29 @@ namespace Application.Services
 
             _paymentRepository.CreatePayment(payment);
 
-
-            return initPoint;
+            return (initPoint, preferenceId);
         }
 
         public async Task HandlePaymentNotificationAsync(string mercadoPagoPaymentId)
         {
             if (string.IsNullOrEmpty(mercadoPagoPaymentId)) return;
 
-            var (status, preferenceId) = await _paymentGateway.GetPaymentAsync(mercadoPagoPaymentId);
-            if (string.IsNullOrEmpty(preferenceId)) return;
+            var (status, externalReference) = await _paymentGateway.GetPaymentAsync(mercadoPagoPaymentId);
+            if (string.IsNullOrEmpty(externalReference)) return;
 
-            var payment = _paymentRepository.GetByPreferenceId(preferenceId);
-            if (payment == null) return;
+            // El external_reference contiene el UserId
+            if (!int.TryParse(externalReference, out int userId)) return;
 
-            bool isPaid = string.Equals(status, "approved", StringComparison.OrdinalIgnoreCase) || string.Equals(status, "paid", StringComparison.OrdinalIgnoreCase);
+            // Buscar el pago pendiente más reciente de este usuario
+            var pendingPayments = _paymentRepository.GetPaymentsByUserId(userId)
+                .Where(p => !p.Pagado)
+                .OrderByDescending(p => p.Fecha)
+                .ToList();
+
+            if (!pendingPayments.Any()) return;
+
+            var payment = pendingPayments.First();
+            bool isPaid = status == "approved";
 
             if (isPaid && !payment.Pagado)
             {
@@ -74,10 +77,41 @@ namespace Application.Services
                 payment.Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 _paymentRepository.UpdatePayment(payment);
             }
-            else if (!isPaid && payment.Pagado)
+        }
+
+        public async Task VerifyUserPaymentAsync(int userId)
+        {
+            // 1. Obtener todos los pagos pendientes del usuario
+            var pendingPayments = _paymentRepository.GetPaymentsByUserId(userId)
+                .Where(p => !p.Pagado)
+                .OrderByDescending(p => p.Id)
+                .ToList();
+
+            if (!pendingPayments.Any()) return;
+
+            // 2. Intentar verificar primero por PreferenceId (más preciso)
+            foreach (var payment in pendingPayments.Where(p => !string.IsNullOrEmpty(p.PreferenceId)))
             {
-                payment.Pagado = false;
-                _paymentRepository.UpdatePayment(payment);
+                var (status, mpPaymentId) = await _paymentGateway.GetPaymentByPreferenceIdAsync(payment.PreferenceId!);
+                if (status == "approved")
+                {
+                    payment.Pagado = true;
+                    payment.Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    _paymentRepository.UpdatePayment(payment);
+                    return; // Ya encontramos y procesamos el pago
+                }
+            }
+
+            // 3. Si no funcionó o no había PreferenceId, intentar por ExternalReference (UserId)
+            // Esto es un fallback para pagos viejos
+            var (statusGeneric, paymentIdGeneric) = await _paymentGateway.GetPaymentByPreferenceAsync(userId.ToString());
+
+            if (statusGeneric == "approved" && !string.IsNullOrEmpty(paymentIdGeneric))
+            {
+                var paymentToUpdate = pendingPayments.First();
+                paymentToUpdate.Pagado = true;
+                paymentToUpdate.Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                _paymentRepository.UpdatePayment(paymentToUpdate);
             }
         }
 
@@ -193,11 +227,6 @@ namespace Application.Services
                 Pagado = p.Pagado
             }).ToList();
         }
-
-        public string GetMercadoPagoPublicKey()
-        {
-            return _configuration["MercadoPago:PublicKey"] ?? string.Empty;
-        }
     }
 }
-    
+

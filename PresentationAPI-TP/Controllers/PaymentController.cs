@@ -111,6 +111,29 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
+        [HttpPost("mercadopago/verify")]
+        public async Task<IActionResult> VerifyPayment()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(x => x.Type == "UserId");
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+            Console.WriteLine($"[Verify] Iniciando verificación para usuario {userId}");
+
+            try
+            {
+                await _paymentService.VerifyUserPaymentAsync(userId);
+                return Ok(new { message = "Verificación completada" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Verify] Error: {ex.Message}");
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize]
         [HttpGet("me/payments/pending")]
         public IActionResult GetMyPendingPayment()
         {
@@ -132,8 +155,7 @@ namespace WebAPI.Controllers
 
         [Authorize]
         [HttpPost("mercadopago")]
-        public async Task<IActionResult> CreateMercadoPagoPayment(
-            [FromBody] CreateMercadoPagoRequest request)
+        public async Task<IActionResult> CreateMercadoPagoPayment([FromBody] CreateMercadoPagoRequest request)
         {
             if (request.Monto <= 0)
                 return BadRequest("El monto debe ser mayor a cero.");
@@ -146,43 +168,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                // Devuelve el init_point de Mercado Pago
-                var initPoint = await _paymentService.CreatePaymentPreferenceAsync(request);
-
-                return Ok(new
-                {
-                    initPoint // 👈 nombre estándar de Mercado Pago
-                });
+                var result = await _paymentService.CreatePaymentPreferenceAsync(request);
+                return Ok(new { initPoint = result.InitPoint, preferenceId = result.PreferenceId });
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
-                return BadRequest($"Configuración incorrecta: {ex.Message}");
-            }
-            catch (HttpRequestException ex)
-            {
-                return BadRequest($"Error de Mercado Pago: {ex.Message}");
-            }
-            catch
-            {
-                return StatusCode(500, "Error interno al procesar el pago.");
-            }
-        }
-
-        [AllowAnonymous]
-        [HttpGet("mercadopago/publickey")]
-        public IActionResult GetMercadoPagoPublicKey()
-        {
-            try
-            {
-                var publicKey = _paymentService.GetMercadoPagoPublicKey();
-                if (string.IsNullOrEmpty(publicKey))
-                    return BadRequest("MercadoPago Public Key no configurado.");
-
-                return Ok(new { publicKey });
-            }
-            catch
-            {
-                return StatusCode(500, "Error obteniendo Public Key de MercadoPago.");
+                Console.WriteLine($"Error creando preferencia: {ex.Message}");
+                return StatusCode(500, "Error al procesar el pago.");
             }
         }
 
@@ -193,20 +185,25 @@ namespace WebAPI.Controllers
             string paymentId = null;
             try
             {
+                // Mercado Pago envía: { "type": "payment", "data": { "id": "123" } }
+                // O bien por query string: ?topic=payment&id=123
                 if (payload.ValueKind == JsonValueKind.Object)
                 {
-                    if (payload.TryGetProperty("type", out var t) && t.GetString() == "payment" && payload.TryGetProperty("data", out var data) && data.TryGetProperty("id", out var idProp))
+                    if (payload.TryGetProperty("type", out var type) && type.GetString() == "payment"
+                        && payload.TryGetProperty("data", out var data)
+                        && data.TryGetProperty("id", out var idProp))
+                    {
                         paymentId = idProp.GetString();
+                    }
                     else if (payload.TryGetProperty("id", out var id))
+                    {
                         paymentId = id.GetString();
+                    }
                 }
 
-                if (string.IsNullOrEmpty(paymentId))
+                if (string.IsNullOrEmpty(paymentId) && Request.Query.ContainsKey("id"))
                 {
-                    if (Request.Query.ContainsKey("topic") && Request.Query.ContainsKey("id") && Request.Query["topic"] == "payment")
-                    {
-                        paymentId = Request.Query["id"];
-                    }
+                    paymentId = Request.Query["id"];
                 }
 
                 if (string.IsNullOrEmpty(paymentId))
@@ -215,8 +212,9 @@ namespace WebAPI.Controllers
                 await _paymentService.HandlePaymentNotificationAsync(paymentId);
                 return Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error procesando webhook: {ex.Message}");
                 return StatusCode(500, "Error procesando notificación.");
             }
         }
