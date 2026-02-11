@@ -19,7 +19,7 @@ namespace Application.Interfaces
         bool UpdateUser(int id, UpdateUserRequest request);
 
         bool DeleteUser(int id);
-        bool ChangeUserPlan(int userId, int newPlanId);
+        //bool ChangeUserPlan(int userId, int newPlanId);
         bool CreateUser(CreateUserRequest request);
 
         bool CreateUserByAdmin(CreateUserByAdminRequest request);

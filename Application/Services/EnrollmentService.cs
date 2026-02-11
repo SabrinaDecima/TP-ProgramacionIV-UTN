@@ -11,15 +11,18 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IGymClassRepository _gymClassRepository;
         private readonly IHistoricalRepository _historicalRepository;
+        private readonly ISubscriptionRepository _subscriptionRepository;
 
         public EnrollmentService(
             IUserRepository userRepository,
             IGymClassRepository gymClassRepository,
-            IHistoricalRepository historicalRepository)
+            IHistoricalRepository historicalRepository,
+            ISubscriptionRepository subscriptionRepository)
         {
             _userRepository = userRepository;
             _gymClassRepository = gymClassRepository;
             _historicalRepository = historicalRepository;
+            _subscriptionRepository = subscriptionRepository;
         }
 
         public EnrollmentResponse EnrollUser(EnrollUserRequest request)
@@ -33,7 +36,7 @@ namespace Application.Services
                 return new EnrollmentResponse { Success = false, Message = "Clase no encontrada." };
 
             if (!CanEnroll(user))
-                return new EnrollmentResponse { Success = false, Message = "No puede inscribirse según su plan." };
+                return new EnrollmentResponse { Success = false, Message = "No puede inscribirse según su plan. Verifique su suscripción activa." };
 
             if (gymClass.Users.Count >= gymClass.MaxCapacityUser)
                 return new EnrollmentResponse { Success = false, Message = "La clase está completa." };
@@ -41,7 +44,6 @@ namespace Application.Services
             if (user.GymClasses.Any(c => c.Id == gymClass.Id))
                 return new EnrollmentResponse { Success = false, Message = "Ya está inscrito en esta clase." };
 
-           
             user.GymClasses.Add(gymClass);
             gymClass.Users.Add(user);
 
@@ -49,8 +51,7 @@ namespace Application.Services
 
             if (updated)
             {
-                // Convertir Dia (enum) + Hora (string) a DateTime simple
-                var classTime = TimeSpan.Parse(gymClass.Hora); // "HH:mm"
+                var classTime = TimeSpan.Parse(gymClass.Hora);
                 var classDate = new DateTime(2000, 1, (int)gymClass.Dia + 1, classTime.Hours, classTime.Minutes, 0);
 
                 _historicalRepository.Add(new Historical
@@ -102,8 +103,6 @@ namespace Application.Services
                 }
             }
 
-
-
             var updatedClass = _gymClassRepository.GetByIdWithUsers(request.GymClassId);
 
             return new EnrollmentResponse
@@ -119,11 +118,19 @@ namespace Application.Services
 
         private bool CanEnroll(User user)
         {
-            var limit = user.PlanId switch
+            // Obtener suscripción activa del usuario
+            var activeSubscription = _subscriptionRepository.GetActiveSubscription(user.Id);
+
+            // Si no tiene suscripción activa, no puede inscribirse
+            if (activeSubscription == null)
+                return false;
+
+            // Validar límite según el plan
+            var limit = activeSubscription.Plan?.Id switch
             {
-                1 => 5,
-                2 => 10,
-                3 => 15,
+                1 => 5,    // Plan Basic: máx 5 clases
+                2 => 10,   // Plan Premium: máx 10 clases
+                3 => 15,   // Plan Elite: máx 15 clases
                 _ => 0
             };
 

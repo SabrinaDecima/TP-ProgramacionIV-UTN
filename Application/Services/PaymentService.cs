@@ -39,7 +39,7 @@ namespace Application.Services
             {
                 UserId = request.UserId,
                 Monto = request.Monto,
-                Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                Fecha = DateTime.Now,
                 Pagado = false,
                 PreferenceId = preferenceId,
                 InitPoint = initPoint
@@ -74,7 +74,7 @@ namespace Application.Services
             if (isPaid && !payment.Pagado)
             {
                 payment.Pagado = true;
-                payment.Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                payment.Fecha = DateTime.Now;
                 _paymentRepository.UpdatePayment(payment);
             }
         }
@@ -96,7 +96,7 @@ namespace Application.Services
                 if (status == "approved")
                 {
                     payment.Pagado = true;
-                    payment.Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    payment.Fecha = DateTime.Now;
                     _paymentRepository.UpdatePayment(payment);
                     return; // Ya encontramos y procesamos el pago
                 }
@@ -110,7 +110,7 @@ namespace Application.Services
             {
                 var paymentToUpdate = pendingPayments.First();
                 paymentToUpdate.Pagado = true;
-                paymentToUpdate.Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                paymentToUpdate.Fecha = DateTime.Now;
                 _paymentRepository.UpdatePayment(paymentToUpdate);
             }
         }
@@ -154,7 +154,7 @@ namespace Application.Services
             {
                 UserId = request.UserId,
                 Monto = request.Monto,
-                Fecha = request.Fecha ?? string.Empty,
+                Fecha = request.Fecha,
                 Pagado = request.Pagado
             };
 
@@ -179,7 +179,7 @@ namespace Application.Services
 
             existing.UserId = request.UserId;
             existing.Monto = request.Monto;
-            existing.Fecha = request.Fecha ?? string.Empty;
+            existing.Fecha = request.Fecha;
             existing.Pagado = request.Pagado;
 
             var updated = _paymentRepository.UpdatePayment(existing);

@@ -47,10 +47,6 @@ namespace Application.Services
             if (_userRepository.GetByEmail(request.Email) != null)
                 return false;
 
-            var plan = _planRepository.GetPlanById(request.PlanId);
-            if (plan == null)
-                return false;
-
 
 
             var defaultRole = _roleRepository.GetById((int)TypeRole.Socio);
@@ -65,49 +61,22 @@ namespace Application.Services
                 Apellido = request.Apellido,
                 Email = request.Email,
                 Telefono = request.Telefono,
-                PlanId = request.PlanId,
                 RoleId = defaultRole.Id,
-                Plan = plan,
                 Rol = defaultRole
             };
 
             user.Contraseña = _passwordService.HashPassword(user, request.Contraseña);
 
-            var created = _userRepository.CreateUser(user);
-            if (!created)
-                return false;
-
-            // Crear pago inicial (si tiene plan)
-            try
-            {
-                if (user.PlanId != null && plan != null)
-                {
-                    var initialPayment = new Payment
-                    {
-                        UserId = user.Id,
-                        Monto = plan.Precio,
-                        Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                        Pagado = false
-                    };
-
-                    _paymentRepository.CreatePayment(initialPayment);
-                }
-            }
-            catch
-            {
-                // No interrumpimos la creación del usuario por un fallo en pagos; podría registrarse un log aquí.
-            }
-
-            return true;
+           return _userRepository.CreateUser(user);
         }
 
         //  Creación de usuario por Admin
         public bool CreateUserByAdmin(CreateUserByAdminRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Nombre) ||
-       string.IsNullOrWhiteSpace(request.Apellido) ||
-       string.IsNullOrWhiteSpace(request.Email) ||
-       string.IsNullOrWhiteSpace(request.Contraseña))
+               string.IsNullOrWhiteSpace(request.Apellido) ||
+               string.IsNullOrWhiteSpace(request.Email) ||
+               string.IsNullOrWhiteSpace(request.Contraseña))
                 return false;
 
 
@@ -118,22 +87,7 @@ namespace Application.Services
             if (role == null)
                 return false;
 
-            // Validar plan solo si el rol es Socio
-            Plan plan = null;
-            int? planId = null;
-
-            if (role.Id == 1)
-            {
-                if (request.PlanId == null)
-                    return false;
-
-                plan = _planRepository.GetPlanById(request.PlanId.Value);
-                if (plan == null)
-                    return false;
-
-                planId = plan.Id;
-            }
-
+         
 
             var user = new User
             {
@@ -141,47 +95,16 @@ namespace Application.Services
                 Apellido = request.Apellido,
                 Email = request.Email,
                 Telefono = request.Telefono,
-                PlanId = planId,
                 RoleId = role.Id,
-                Plan = plan,
                 Rol = role
             };
 
 
             user.Contraseña = _passwordService.HashPassword(user, request.Contraseña);
 
-            var created = _userRepository.CreateUser(user);
-            if (!created)
-                return false;
-
-            // Crear pago inicial si el rol es Socio y tiene plan
-            try
-            {
-                if (role.Id == 1 && user.PlanId != null && plan != null)
-                {
-                    var initialPayment = new Payment
-                    {
-                        UserId = user.Id,
-                        Monto = plan.Precio,
-                        Fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                        Pagado = false
-                    };
-
-                    _paymentRepository.CreatePayment(initialPayment);
-                }
-            }
-            catch
-            {
-                // Si falla la creación del pago, no revertimos la creación del usuario; se podría loguear.
-            }
-
-            return true;
+            return _userRepository.CreateUser(user);
 
         }
-
-
-
-
 
         public bool DeleteUser(int id)
         {
@@ -205,7 +128,6 @@ namespace Application.Services
                     Apellido = u.Apellido,
                     Email = u.Email,
                     Telefono = u.Telefono,
-                    PlanId = u.PlanId ?? 0,
                     RoleId = u.RoleId
                 }).ToList();
 
@@ -225,7 +147,6 @@ namespace Application.Services
                 Apellido = user.Apellido,
                 Email = user.Email,
                 Telefono = user.Telefono,
-                PlanId = user.PlanId ?? 0,
                 RoleId = user.RoleId
             };
         }
@@ -251,8 +172,7 @@ namespace Application.Services
                 Nombre = u.Nombre,
                 Apellido = u.Apellido,
                 Email = u.Email,
-                Telefono = u.Telefono,
-                PlanId = u.PlanId ?? 0,
+                Telefono = u.Telefono
             }).ToList();
         }
 
@@ -269,17 +189,10 @@ namespace Application.Services
                 return false;
 
 
-            var plan = _planRepository.GetPlanById(request.PlanId);
-            if (plan == null)
-                return false;
-
-
             existingUser.Nombre = request.Nombre;
             existingUser.Apellido = request.Apellido;
             existingUser.Email = request.Email;
             existingUser.Telefono = request.Telefono;
-            existingUser.PlanId = request.PlanId;
-            existingUser.Plan = plan;
 
 
             return _userRepository.UpdateUser(id, existingUser);
@@ -299,16 +212,6 @@ namespace Application.Services
             if (role == null)
                 return false;
 
-            Plan plan = null;
-            if (role.Id == 1) // Socio
-            {
-                if (request.PlanId == null)
-                    return false;
-
-                plan = _planRepository.GetPlanById(request.PlanId.Value);
-                if (plan == null)
-                    return false;
-            }
 
             existingUser.Nombre = request.Nombre;
             existingUser.Apellido = request.Apellido;
@@ -316,33 +219,31 @@ namespace Application.Services
             existingUser.Telefono = request.Telefono;
             existingUser.RoleId = role.Id;
             existingUser.Rol = role;
-            existingUser.PlanId = plan?.Id;
-            existingUser.Plan = plan;
 
             return _userRepository.UpdateUser(id, existingUser);
         }
 
+        // AHORA DEPENDE DE LA SUSCRIPCION 
+
+        //public bool ChangeUserPlan(int userId, int newPlanId)
+        //{
+
+        //    var newPlan = _planRepository.GetPlanById(newPlanId);
+        //    if (newPlan == null) return false;
 
 
-        public bool ChangeUserPlan(int userId, int newPlanId)
-        {
-
-            var newPlan = _planRepository.GetPlanById(newPlanId);
-            if (newPlan == null) return false;
+        //    var user = _userRepository.GetById(userId);
+        //    if (user == null) return false;
 
 
-            var user = _userRepository.GetById(userId);
-            if (user == null) return false;
+        //    if (user.PlanId == newPlanId) return true;
 
 
-            if (user.PlanId == newPlanId) return true;
+        //    user.PlanId = newPlanId;
+        //    user.Plan = newPlan;
 
-
-            user.PlanId = newPlanId;
-            user.Plan = newPlan;
-
-            return _userRepository.UpdateUser(userId, user);
-        }
+        //    return _userRepository.UpdateUser(userId, user);
+        //}
 
         public async Task<bool> RequestPasswordResetAsync(string email)
         {
@@ -405,6 +306,10 @@ namespace Application.Services
             var user = _userRepository.GetUserWithClasses(userId);
             if (user == null) return null;
 
+            // Obtener plan activo desde la suscripción activa
+            var activeSubscription = user.Subscriptions?.FirstOrDefault(s => s.IsActive);
+            var activePlanId = activeSubscription?.PlanId ?? 0;
+
             return new UserProfileResponse
             {
                 Id = user.Id,
@@ -412,7 +317,7 @@ namespace Application.Services
                 Apellido = user.Apellido,
                 Email = user.Email,
                 Telefono = user.Telefono,
-                PlanId = user.PlanId ?? 0,
+                PlanId = activePlanId,
                 EnrolledClassesCount = user.GymClasses?.Count ?? 0,
                 EnrolledClasses = user.GymClasses?.Select(gc => new GymClassSummary
                 {

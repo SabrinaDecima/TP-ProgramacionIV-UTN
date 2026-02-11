@@ -82,7 +82,7 @@ namespace PresentationAPI_TP.Controllers
                 TotalUsers = allUsers.Count,
                 TotalAdmins = allUsers.Count(u => u.RoleId == 2 || u.RoleId == 3),
                 TotalSocios = allUsers.Count(u => u.RoleId == 1),
-                TotalClasses = _gymClassService.GetAll(0).Count 
+                TotalClasses = _gymClassService.GetAll(0).Count
             };
 
             var recentUsers = allUsers
@@ -98,11 +98,7 @@ namespace PresentationAPI_TP.Controllers
                         3 => "SuperAdministrador",
                         _ => "Desconocido"
                     },
-                    Plan = u.RoleId == 1
-                        ? (u.PlanId == 1 ? "Basic" :
-                           u.PlanId == 2 ? "Premium" :
-                           u.PlanId == 3 ? "Elite" : "Sin plan")
-                        : "N/A"
+                    Plan = u.RoleId == 1 ? "Verificar suscripción activa" : "N/A"
                 })
                 .ToList();
 

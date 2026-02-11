@@ -13,6 +13,8 @@ namespace Infrastructure.Persistence
         public DbSet<GymClass> GymClasses { get; set; }  
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Plan> Plans { get; set; }
+
+        public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Role > Roles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Historical> Historicals { get; set; }
@@ -20,7 +22,7 @@ namespace Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            
 
             // Configuración de clases
             base.OnModelCreating(modelBuilder);
@@ -40,24 +42,42 @@ namespace Infrastructure.Persistence
                 .WithOne(u => u.Rol)
                 .HasForeignKey(u => u.RoleId);
 
-            // Configuración de Plan
+            // Plan
             modelBuilder.Entity<Plan>()
-                .HasMany(p => p.Users)
-                .WithOne(u => u.Plan)
-                .HasForeignKey(u => u.PlanId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Plan>()
+             
               .Property(p => p.Precio)
               .HasPrecision(18, 2);
+
+            // Subscripcion
+
+            modelBuilder.Entity<Subscription>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                // Relación con User
+                entity.HasOne(s => s.User)
+                    .WithMany(u => u.Subscriptions)
+                    .HasForeignKey(s => s.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Relación con Plan
+                entity.HasOne(s => s.Plan)
+                    .WithMany() // Un plan puede estar en muchas suscripciones
+                    .HasForeignKey(s => s.PlanId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(s => s.StartDate).IsRequired();
+                entity.Property(s => s.EndDate).IsRequired();
+                entity.Property(s => s.IsActive).HasDefaultValue(true);
+            });
 
 
             // Configuración de Payment
             modelBuilder.Entity<Payment>()
-                .HasOne(p => p.User)
-                .WithMany(u => u.Pagos) 
-                .HasForeignKey(p => p.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(p => p.Subscription)
+                .WithMany( s => s.Payments) 
+                .HasForeignKey(p => p.SubscriptionId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Monto)
@@ -65,7 +85,7 @@ namespace Infrastructure.Persistence
 
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Fecha)
-                .HasMaxLength(50);
+                .HasColumnType("datetime2");
 
             modelBuilder.Entity<Historical>()
                .HasOne(h => h.User)
@@ -95,16 +115,22 @@ namespace Infrastructure.Persistence
 
             // Seed de Usuarios
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Nombre = "cliente", Apellido = "uno", Email = "cliente@demo.com", Telefono = "1234", Contraseña = PasswordSeeder.Hash("1234"), RoleId = (int)TypeRole.Socio, PlanId = (int)TypePlan.Basic },
-                new User { Id = 2, Nombre = "admin", Apellido = "demo", Email = "admin@demo.com", Telefono = "5678", Contraseña = PasswordSeeder.Hash("1234"), RoleId = (int)TypeRole.Administrador, PlanId = null },   
-                new User { Id = 3, Nombre = "superadmin", Apellido = "demo", Email = "superadmin@demo.com", Telefono = "9999", Contraseña = PasswordSeeder.Hash("1234"), RoleId = (int)TypeRole.SuperAdministrador, PlanId = null }
+                new User { Id = 1, Nombre = "cliente", Apellido = "uno", Email = "cliente@demo.com", Telefono = "1234", Contraseña = PasswordSeeder.Hash("1234"), RoleId = (int)TypeRole.Socio},
+                new User { Id = 2, Nombre = "admin", Apellido = "demo", Email = "admin@demo.com", Telefono = "5678", Contraseña = PasswordSeeder.Hash("1234"), RoleId = (int)TypeRole.Administrador },   
+                new User { Id = 3, Nombre = "superadmin", Apellido = "demo", Email = "superadmin@demo.com", Telefono = "9999", Contraseña = PasswordSeeder.Hash("1234"), RoleId = (int)TypeRole.SuperAdministrador }
             );
+
+            modelBuilder.Entity<Subscription>().HasData(
+                new Subscription { Id = 1, UserId = 1, PlanId = 1, StartDate = new DateTime(2025, 10, 10), EndDate = new DateTime(2025, 11, 10), IsActive = true },
+                new Subscription { Id = 2, UserId = 2, PlanId = 2, StartDate = new DateTime(2025, 10, 10), EndDate = new DateTime(2025, 11, 10), IsActive = true }
+            );
+
 
             // Seed de Payments
             modelBuilder.Entity<Payment>().HasData(
-                new Payment { Id = 1, UserId = 1, Monto = 25.0m, Fecha = "2025-10-10", Pagado = false },
-                new Payment { Id = 2, UserId = 1, Monto = 25.0m, Fecha = "2025-11-10", Pagado = true },
-                new Payment { Id = 3, UserId = 2, Monto = 45.0m, Fecha = "2025-10-10", Pagado = true }
+                new Payment { Id = 1, UserId = 1, Monto = 25.0m, Fecha = new DateTime(2025,10, 10), Pagado = false, SubscriptionId = 1 },
+                new Payment { Id = 2, UserId = 1, Monto = 25.0m, Fecha = new DateTime(2025, 11, 10), Pagado = true, SubscriptionId = 1 },
+                new Payment { Id = 3, UserId = 2, Monto = 45.0m, Fecha = new DateTime(2025, 10, 10), Pagado = true, SubscriptionId = 2 }
             );
 
             // Seed de GymClass

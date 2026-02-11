@@ -13,12 +13,11 @@ namespace PresentationAPI_TP.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IPlanService _planService;
 
         public UserController(IUserService userService, IPlanService planService)
         {
             _userService = userService;
-            _planService = planService;
+
         }
 
        
@@ -57,19 +56,6 @@ namespace PresentationAPI_TP.Controllers
             return Ok("Usuario actualizado correctamente.");
         }
 
-        [Authorize]
-        [HttpPut("{userId}/plan")]
-        public IActionResult ChangePlan([FromRoute] int userId, [FromBody] ChangePlanRequest request)
-        {
-            if (request?.PlanId <= 0)
-                return BadRequest("PlanId inválido.");
-
-            var success = _userService.ChangeUserPlan(userId, request.PlanId);
-            if (!success)
-                return BadRequest("No se pudo cambiar el plan. Verifica que el PlanId sea válido.");
-
-            return Ok("Plan actualizado correctamente.");
-        }
 
         [Authorize]
         [HttpGet("whoami")]

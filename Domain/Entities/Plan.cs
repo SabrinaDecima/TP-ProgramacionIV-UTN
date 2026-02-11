@@ -17,7 +17,6 @@ namespace Domain.Entities
 
         public decimal Precio { get; set; }
 
-        public List<User>? Users { get; set; } // relacion 1 a muchos con User
     }
 
     public enum TypePlan

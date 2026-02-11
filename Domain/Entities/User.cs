@@ -8,7 +8,7 @@ namespace Domain.Entities
         public User()
         {
         }
-        public User(int id, string name, string lastName, string email, string phoneNumber, string password, Role role, Plan? plan = null )
+        public User(int id, string name, string lastName, string email, string phoneNumber, string password, Role role)
         {
             Id = id;
             Nombre = name;
@@ -17,7 +17,6 @@ namespace Domain.Entities
             Telefono = phoneNumber;
             Contraseña = password; 
             Rol = role;
-            Plan = plan;
         }
 
         public string Nombre { get; set; }
@@ -30,8 +29,6 @@ namespace Domain.Entities
         public Role Rol { get; set; }  // relacion con rol (1 a 1)
         
         public List<GymClass>? GymClasses { get; set; } // relacion con las clases 
-        public int? PlanId { get; set; }
-        public Plan? Plan { get; set; } // relacion con plan (1 a 1)
 
         public List<Payment>? Pagos { get; set; } // Relacion con pagos (1 a muchos)
         public List<Historical> Historicals { get; set; } = new();
@@ -39,6 +36,8 @@ namespace Domain.Entities
         public string? PasswordResetToken { get; set; }
         
         public DateTime? ResetTokenExpires { get; set; }
+
+        public List<Subscription> Subscriptions { get; set; } = new();
 
     }
    

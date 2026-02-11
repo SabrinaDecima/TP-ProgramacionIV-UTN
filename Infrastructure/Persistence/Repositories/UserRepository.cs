@@ -7,18 +7,19 @@ namespace Infrastructure.Persistence.Repositories
 {
     public class UserRepository : BaseRepository<User>, IUserRepository
     {
-
         private readonly GymDbContext _context;
 
         public UserRepository(GymDbContext context) : base(context)
         {
             _context = context;
         }
+
+
         public List<User> GetUsers()
         {
             return _context.Users.ToList();
         }
-        
+
         public User? GetById(int id)
         {
             return _context.Users.Find(id);
@@ -28,7 +29,6 @@ namespace Infrastructure.Persistence.Repositories
         {
             _context.Users.Add(user);
             return _context.SaveChanges() > 0;
-
         }
 
         public bool UpdateUser(int id, User user)
@@ -37,14 +37,13 @@ namespace Infrastructure.Persistence.Repositories
             return _context.SaveChanges() > 0;
         }
 
-        public bool DeleteUser (int id)
+        public bool DeleteUser(int id)
         {
-            var user = _context.Users.FirstOrDefault(u =>u.Id == id);
-            if (user == null) 
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            if (user == null)
                 return false;
             _context.Users.Remove(user);
             return _context.SaveChanges() > 0;
-
         }
 
         public User? GetByEmail(string email)
@@ -52,19 +51,11 @@ namespace Infrastructure.Persistence.Repositories
             return _context.Users.Include(u => u.Rol).FirstOrDefault(u => u.Email == email);
         }
 
-        public User? GetByEmailAndPassword (LoginRequest request)
+        public User? GetByEmailAndPassword(LoginRequest request)
         {
             return _context.Users
-                .Include( x => x.Rol)
-                .FirstOrDefault( x => x.Email == request.Email && x.Contraseña == request.Password);
-        }
-
-
-        public User? GetUserWithPlan(int id)
-        {
-            return _context.Users
-                .Include(u => u.Plan)
-                .FirstOrDefault(u => u.Id == id);
+                .Include(x => x.Rol)
+                .FirstOrDefault(x => x.Email == request.Email && x.Contraseña == request.Password);
         }
 
         public User? GetUserWithClasses(int id)
@@ -81,18 +72,24 @@ namespace Infrastructure.Persistence.Repositories
                 .FirstOrDefault(u => u.Id == id);
         }
 
+        public User? GetUserWithSubscriptions(int id)
+        {
+            return _context.Users
+                .Include(u => u.Subscriptions)
+                .ThenInclude(s => s.Plan)
+                .FirstOrDefault(u => u.Id == id);
+        }
+
         public bool ChangeUserRole(int id, string newRole)
         {
             var user = _context.Users.Find(id);
             if (user == null)
-            {
-                return false; // Usuario no encontrado
-            }
+                return false;
+
             var role = _context.Roles.FirstOrDefault(r => r.Nombre == newRole);
             if (role == null)
-            {
-                return false; // Rol no encontrado
-            }
+                return false;
+
             user.RoleId = role.Id;
             user.Rol = role;
             _context.Users.Update(user);
@@ -106,8 +103,5 @@ namespace Infrastructure.Persistence.Repositories
                 .Include(u => u.Pagos)
                 .FirstOrDefault(u => u.Id == id);
         }
-
-       
-       
     }
 }
