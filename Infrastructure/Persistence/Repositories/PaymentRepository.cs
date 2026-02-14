@@ -13,55 +13,72 @@ namespace Infrastructure.Repositories
         {
             _context = context;
         }
-
-        public List<Payment> GetAll()
+        
+        public async Task<List<Payment>> GetAllAsync()
         {
-            return _context.Payments.Include(p => p.User).ToList();
+            return await _context.Payments
+                .Include(p => p.Subscription)
+                .Include(p => p.User)
+                .OrderByDescending(p => p.Fecha)
+                .ToListAsync();
+            ;
+        }
+        
+        public async Task<Payment?> GetByIdAsync(int id)
+        {
+            return await _context.Payments
+               .Include(p => p.Subscription)
+               .Include(p => p.User)
+               .FirstOrDefaultAsync(p => p.Id == id);
+
         }
 
-        public Payment? GetById(int id)
+        public async Task<bool> CreateAsync(Payment payment)
         {
-            return _context.Payments.Include(p => p.User).FirstOrDefault(p => p.Id == id);
+            await _context.Payments.AddAsync(payment);
+            
+            return await _context.SaveChangesAsync() > 0;
         }
-
-        public Payment CreatePayment(Payment payment)
+        
+        public async Task<List<Payment>> GetByUserIdAsync(int userId)
         {
-            _context.Payments.Add(payment);
-            _context.SaveChanges();
-            return payment;
+            // Como el pago apunta a la suscripción y la suscripción al usuario
+            return await _context.Payments
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
         }
-
-        public Payment UpdatePayment(Payment payment)
+        
+        public async Task<List<Payment>> GetBySubscriptionIdAsync(int subscriptionId)
+        {
+            return await _context.Payments
+                .Where(p => p.SubscriptionId == subscriptionId)
+                .OrderByDescending(p => p.Fecha)
+                .ToListAsync();
+        }
+        
+        public async Task<bool> UpdateAsync(Payment payment)
         {
             _context.Payments.Update(payment);
-            _context.SaveChanges();
-            return payment;
+            
+            return await _context.SaveChangesAsync() > 0;
         }
-
-        public bool DeletePayment(int id)
+       
+        public async Task<bool> DeleteAsync(int id)
         {
-            var payment = _context.Payments.Find(id);
+            var payment = await _context.Payments.FindAsync(id);
             if (payment == null) return false;
 
             _context.Payments.Remove(payment);
-            _context.SaveChanges();
-            return true;
+            
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        public List<Payment> GetPaymentsByUserId(int userId)
+        public async Task<Payment?> GetByPreferenceIdAsync(string preferenceId)
         {
-            return _context.Payments
-                .Include(p => p.User)
-                .Where(p => p.UserId == userId)
-                .ToList();
+            return await _context.Payments
+                .FirstOrDefaultAsync(p => p.PreferenceId == preferenceId);
         }
 
-        public List<Payment> GetPendingPaymentsByUserId(int userId)
-        {
-            return _context.Payments
-                .Include(p => p.User)
-                .Where(p => p.UserId == userId && !p.Pagado)
-                .ToList();
-        }
+
     }
 }

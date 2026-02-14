@@ -9,8 +9,10 @@ namespace Contracts.Payment.Request
     public class CreateMercadoPagoRequest
     {
         public int UserId { get; set; }
+        public int PlanId { get; set; }
         public decimal Monto { get; set; }
-        public string? Descripcion { get; set; }
-        public string? Email { get; set; }
+        public string Title { get; set; } = "Suscripción Gimnasio";
+
+        public string? ExternalReference { get; set; }
     }
 }

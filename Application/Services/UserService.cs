@@ -310,6 +310,8 @@ namespace Application.Services
             var activeSubscription = user.Subscriptions?.FirstOrDefault(s => s.IsActive);
             var activePlanId = activeSubscription?.PlanId ?? 0;
 
+            bool isRealActive = activeSubscription != null && activeSubscription.IsActive && activeSubscription.EndDate > DateTime.Now;
+
             return new UserProfileResponse
             {
                 Id = user.Id,
@@ -318,6 +320,10 @@ namespace Application.Services
                 Email = user.Email,
                 Telefono = user.Telefono,
                 PlanId = activePlanId,
+                IsSubscriptionActive = isRealActive,
+                SubscriptionEndDate = activeSubscription?.EndDate,
+                PlanName = activeSubscription?.Plan?.Tipo.ToString() ?? "Sin Plan",
+                ClassLimit = activeSubscription?.PlanId switch { 1 => 5, 2 => 10, 3 => 15, _ => 0 },
                 EnrolledClassesCount = user.GymClasses?.Count ?? 0,
                 EnrolledClasses = user.GymClasses?.Select(gc => new GymClassSummary
                 {

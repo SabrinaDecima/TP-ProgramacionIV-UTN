@@ -6,15 +6,12 @@ namespace Application.Abstraction
 {
     public interface IPaymentService
     {
-        List<PaymentResponse> GetAllPayments();
-        PaymentResponse? GetPaymentById(int id);
-        PaymentResponse? CreatePayment(CreatePaymentRequest request);
-        PaymentResponse? UpdatePayment(int id, UpdatePaymentRequest request);
-        bool DeletePayment(int id);
-        List<PaymentResponse> GetPaymentsByUserId(int userId);
-        List<PaymentResponse> GetPendingPaymentsByUserId(int userId);
         Task<(string InitPoint, string PreferenceId)> CreatePaymentPreferenceAsync(CreateMercadoPagoRequest request);
         Task HandlePaymentNotificationAsync(string mercadoPagoPaymentId);
-        Task VerifyUserPaymentAsync(int userId);
+        Task<List<PaymentResponse>> GetAllPaymentsAsync();
+        Task<PaymentResponse?> GetPaymentByIdAsync(int id);
+        Task<List<PaymentResponse>> GetPaymentsByUserIdAsync(int userId);
+        Task<bool> ProcessManualPaymentAsync(int userId, int planId, decimal amount);
+       
     }
 }

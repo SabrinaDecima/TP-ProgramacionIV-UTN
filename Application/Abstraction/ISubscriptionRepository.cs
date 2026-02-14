@@ -4,11 +4,13 @@ namespace Application.Abstraction
 {
     public interface ISubscriptionRepository
     {
-        Subscription? GetActiveSubscription(int userId);
-        Subscription? GetById(int id);
-        List<Subscription> GetByUserId(int userId);
-        bool Create(Subscription subscription);
-        bool Update(Subscription subscription);
-        bool Delete(int id);
+        Task<Subscription?> GetActiveSubscriptionAsync(int userId);
+        Task<Subscription?> GetByIdAsync(int id);
+        Task<List<Subscription>> GetByUserIdAsync(int userId);
+        Task<List<Subscription>> GetExpiredSubscriptionsAsync();
+        Task<bool> CreateAsync(Subscription subscription);
+        Task<bool> UpdateAsync(Subscription subscription);
+        Task<bool> DeleteAsync(int id);
+
     }
 }

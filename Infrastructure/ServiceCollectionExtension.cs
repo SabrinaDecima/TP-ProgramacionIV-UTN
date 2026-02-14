@@ -85,6 +85,7 @@ public static class ServiceCollectionExtension
     {
         services.AddScoped<IGymClassRepository, GymClassRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IPlanRepository, PlanRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();

@@ -5,7 +5,7 @@ namespace Application.Interfaces
 {
     public interface IEnrollmentService
     {
-        EnrollmentResponse EnrollUser(EnrollUserRequest request);
-        EnrollmentResponse UnenrollUser(EnrollUserRequest request);
+        Task<EnrollmentResponse> EnrollUserAsync(EnrollUserRequest request);
+        Task<EnrollmentResponse> UnenrollUserAsync(EnrollUserRequest request);
     }
 }

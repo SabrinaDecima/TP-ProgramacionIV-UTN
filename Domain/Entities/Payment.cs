@@ -26,6 +26,8 @@ namespace Domain.Entities
         public int? SubscriptionId { get; set; }
 
         public Subscription? Subscription { get; set; }
+
+        
     }
 }
 

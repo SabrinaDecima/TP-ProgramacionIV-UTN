@@ -10,10 +10,14 @@ namespace Contracts.Payment.Response
     {
         public int Id { get; set; }
 
-        public int UserId { get; set; }
-      
         public decimal Monto { get; set; }
         public DateTime Fecha { get; set; }
         public bool Pagado { get; set; }
+        public string? MetodoPago { get; set; } 
+        public int SubscriptionId { get; set; }
+        public int UserId { get; set; }
+      
+
+
     }
 }

@@ -1,6 +1,7 @@
 using Application.Abstraction;
 using Domain.Entities;
 using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -13,44 +14,59 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public Subscription? GetActiveSubscription(int userId)
+        public async Task<Subscription?> GetActiveSubscriptionAsync(int userId)
         {
-            return _context.Subscriptions
-                .FirstOrDefault(s => s.UserId == userId && s.IsActive && !s.IsExpired);
+            var now = DateTime.UtcNow;
+            return await _context.Subscriptions
+                .Include(s => s.Plan) 
+                .FirstOrDefaultAsync(s => s.UserId == userId && s.IsActive && s.EndDate > now);
         }
 
-        public Subscription? GetById(int id)
+        public async Task<Subscription?> GetByIdAsync(int id)
         {
-            return _context.Subscriptions.FirstOrDefault(s => s.Id == id);
+            return await _context.Subscriptions
+         .Include(s => s.Plan)
+         .Include(s => s.User)
+         .FirstOrDefaultAsync(s => s.Id == id);
+
         }
 
-        public List<Subscription> GetByUserId(int userId)
+        public async Task<List<Subscription>> GetByUserIdAsync(int userId)
         {
-            return _context.Subscriptions
-                .Where(s => s.UserId == userId)
-                .ToList();
+            return await _context.Subscriptions
+            .Include(s => s.Plan)
+            .Where(s => s.UserId == userId)
+            .OrderByDescending(s => s.EndDate) 
+            .ToListAsync();
         }
 
-        public bool Create(Subscription subscription)
+        public async Task<List<Subscription>> GetExpiredSubscriptionsAsync()
+        {
+            return await _context.Subscriptions
+                .Where(s => s.IsActive && s.EndDate <= DateTime.UtcNow)
+                .ToListAsync();
+        }
+
+        public async Task<bool> CreateAsync(Subscription subscription)
         {
             _context.Subscriptions.Add(subscription);
-            return _context.SaveChanges() > 0;
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        public bool Update(Subscription subscription)
+        public async Task<bool> UpdateAsync(Subscription subscription)
         {
             _context.Subscriptions.Update(subscription);
-            return _context.SaveChanges() > 0;
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var subscription = GetById(id);
+            var subscription = await _context.Subscriptions.FindAsync(id);
             if (subscription == null)
                 return false;
 
             _context.Subscriptions.Remove(subscription);
-            return _context.SaveChanges() > 0;
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

@@ -18,9 +18,9 @@ namespace WebApi.Controllers
 
         [Authorize]
         [HttpPost("enroll")]
-        public IActionResult Enroll([FromBody] EnrollUserRequest request)
+        public async Task<IActionResult> Enroll([FromBody] EnrollUserRequest request)
         {
-            var result = _enrollmentService.EnrollUser(request);
+            var result = await _enrollmentService.EnrollUserAsync(request);
 
             if(result == null)
             {
@@ -38,9 +38,9 @@ namespace WebApi.Controllers
 
         [Authorize]
         [HttpDelete("unenroll")]
-        public IActionResult Unenroll([FromBody] EnrollUserRequest request)
+        public async Task<IActionResult> Unenroll([FromBody] EnrollUserRequest request)
         {
-            var result = _enrollmentService.UnenrollUser(request);
+            var result = await _enrollmentService.UnenrollUserAsync(request);
 
 
             if (result == null)

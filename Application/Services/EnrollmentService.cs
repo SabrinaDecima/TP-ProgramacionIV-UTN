@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Contracts.Enrollment.Request;
 using Contracts.Enrollment.Response;
 using Domain.Entities;
+using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -25,8 +26,8 @@ namespace Application.Services
             _subscriptionRepository = subscriptionRepository;
         }
 
-        public EnrollmentResponse EnrollUser(EnrollUserRequest request)
-        {
+        public async Task<EnrollmentResponse> EnrollUserAsync(EnrollUserRequest request)
+        {   
             var user = _userRepository.GetUserWithClasses(request.UserId);
             if (user == null)
                 return new EnrollmentResponse { Success = false, Message = "Usuario no encontrado." };
@@ -35,7 +36,7 @@ namespace Application.Services
             if (gymClass == null)
                 return new EnrollmentResponse { Success = false, Message = "Clase no encontrada." };
 
-            if (!CanEnroll(user))
+            if (!await CanEnrollAsync(user))
                 return new EnrollmentResponse { Success = false, Message = "No puede inscribirse según su plan. Verifique su suscripción activa." };
 
             if (gymClass.Users.Count >= gymClass.MaxCapacityUser)
@@ -77,7 +78,7 @@ namespace Application.Services
             };
         }
 
-        public EnrollmentResponse UnenrollUser(EnrollUserRequest request)
+        public async Task<EnrollmentResponse> UnenrollUserAsync(EnrollUserRequest request)
         {
             var user = _userRepository.GetUserWithClasses(request.UserId);
             var gymClass = _gymClassRepository.GetById(request.GymClassId);
@@ -116,17 +117,18 @@ namespace Application.Services
             };
         }
 
-        private bool CanEnroll(User user)
+        private async Task<bool> CanEnrollAsync(User user)
         {
             // Obtener suscripción activa del usuario
-            var activeSubscription = _subscriptionRepository.GetActiveSubscription(user.Id);
+            var activeSubscription = await _subscriptionRepository.GetActiveSubscriptionAsync(user.Id);
 
             // Si no tiene suscripción activa, no puede inscribirse
-            if (activeSubscription == null)
+            if (activeSubscription == null || !activeSubscription.IsActive ||
+                activeSubscription.EndDate < DateTime.Now)
                 return false;
 
             // Validar límite según el plan
-            var limit = activeSubscription.Plan?.Id switch
+            var limit = activeSubscription.PlanId switch
             {
                 1 => 5,    // Plan Basic: máx 5 clases
                 2 => 10,   // Plan Premium: máx 10 clases
@@ -134,7 +136,10 @@ namespace Application.Services
                 _ => 0
             };
 
+            // Retorna true si puede inscribirse (clases actuales < límite)
             return (user.GymClasses?.Count ?? 0) < limit;
         }
     }
 }
+
+

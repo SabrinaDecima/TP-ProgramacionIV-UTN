@@ -1,13 +1,13 @@
 ﻿using Application.Abstraction.ExternalService;
+using Azure;
 using Contracts.Payment.Request;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.WebUtilities;
 using System.Threading.Tasks;
 
 namespace Infrastructure.ExternalServices
@@ -36,13 +36,7 @@ namespace Infrastructure.ExternalServices
 
             var frontendBase = _configuration["Frontend:BaseUrl"] ?? "http://localhost:4200";
 
-            // Crear preferencia según documentación oficial de Mercado Pago
-            var backUrls = new
-            {
-                success = $"{frontendBase}/pagos",
-                failure = $"{frontendBase}/pagos",
-                pending = $"{frontendBase}/pagos"
-            };
+      
 
             var preference = new Dictionary<string, object>
             {
@@ -50,172 +44,112 @@ namespace Infrastructure.ExternalServices
                 {
                     new
                     {
-                        title = request.Descripcion ?? "Membresía Gym",
+                        title = request.Title?? "Membresía Gym",
                         quantity = 1,
                         currency_id = "ARS",
                         unit_price = request.Monto
                     }
                 },
-                ["back_urls"] = backUrls,
-                ["external_reference"] = request.UserId.ToString()
+                ["external_reference"] = request.ExternalReference ?? request.UserId.ToString(),
+                ["back_urls"] = new Dictionary<string, string>
+                {
+                    ["success"] = "http://localhost:4200/pagos",
+                    ["pending"] = "http://localhost:4200/pagos",
+                    ["failure"] = "http://localhost:4200/pagos"
+                },
+                ["binary_mode"] = true
+
             };
 
-            // Solo añadir auto_return si el frontend es HTTPS
-            if (frontendBase.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-            {
-                preference["auto_return"] = "approved";
-            }
+            var options = new JsonSerializerOptions();
+           
 
-            // Añadir email del pagador si está disponible
-            if (!string.IsNullOrEmpty(request.Email))
-            {
-                preference["payer"] = new { email = request.Email };
-            }
-
-            var json = JsonSerializer.Serialize(preference, new JsonSerializerOptions
-            {
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-            });
+            var json = JsonSerializer.Serialize(preference, options);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync("https://api.mercadopago.com/checkout/preferences", content);
             var responseJson = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"Error Mercado Pago ({response.StatusCode}): {responseJson}");
-                throw new HttpRequestException($"Error al crear preferencia en Mercado Pago: {responseJson}");
-            }
+                throw new HttpRequestException($"Error Mercado Pago: {responseJson}");
 
             using var doc = JsonDocument.Parse(responseJson);
             var root = doc.RootElement;
 
             var preferenceId = root.GetProperty("id").GetString();
-            var initPoint = accessToken.StartsWith("TEST") && root.TryGetProperty("sandbox_init_point", out var sandbox)
-                ? sandbox.GetString()
-                : root.GetProperty("init_point").GetString();
+            var initPoint = root.GetProperty("init_point").GetString();
 
-            if (string.IsNullOrEmpty(initPoint) || string.IsNullOrEmpty(preferenceId))
-                throw new InvalidOperationException("Respuesta de Mercado Pago sin init_point o id");
+            return (initPoint!, preferenceId!);
 
-            return (initPoint, preferenceId);
         }
 
-        public async Task<(string Status, string PreferenceId)> GetPaymentAsync(string paymentId)
+        public async Task<(string Status, string ExternalReference, string PreferenceId, decimal Amount)> GetPaymentAsync(string paymentId)
         {
-            var client = _httpClientFactory.CreateClient("MercadoPago");
-            var accessToken = _configuration["MercadoPago:AccessToken"];
-
-            if (string.IsNullOrEmpty(accessToken))
-                throw new InvalidOperationException("Access Token de Mercado Pago no configurado.");
-
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
+            var client = GetConfiguredClient();
             var response = await client.GetAsync($"https://api.mercadopago.com/v1/payments/{paymentId}");
 
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error obteniendo pago {paymentId}: {errorContent}");
-                throw new HttpRequestException($"Error Mercado Pago ({response.StatusCode}): {errorContent}");
+                throw new HttpRequestException($"Error Mercado Pago al obtener pago {paymentId}: {errorContent}");
             }
 
             var responseJson = await response.Content.ReadAsStringAsync();
+
+
+            // 1. ESTO ES PARA VOS: Mira la consola de Visual Studio cuando ejecutes esto
+            Console.WriteLine("--- JSON RECIBIDO DE MERCADO PAGO ---");
+            Console.WriteLine(responseJson);
+            Console.WriteLine("-------------------------------------");
+
+
+
             using var doc = JsonDocument.Parse(responseJson);
             var root = doc.RootElement;
 
+            // 1. Extraemos datos básicos
             var status = root.GetProperty("status").GetString() ?? string.Empty;
-            var preferenceId = root.TryGetProperty("external_reference", out var extRef)
-                ? extRef.GetString() ?? string.Empty
-                : string.Empty;
+            var extRef = root.TryGetProperty("external_reference", out var ex) ? ex.GetString() : string.Empty;
+            var amount = root.TryGetProperty("transaction_amount", out var amt) ? amt.GetDecimal() : 0;
 
-            return (status, preferenceId);
+            // 2. BUSQUEDA ROBUSTA DEL PREFERENCE_ID (Solución al error NULL)
+            string prefId = string.Empty;
+
+            // INTENTO 1: Buscar en preference_id
+            if (root.TryGetProperty("preference_id", out var p) && p.ValueKind != JsonValueKind.Null)
+                prefId = p.GetString() ?? "";
+
+            // INTENTO 2: Buscar en order.id
+            if (string.IsNullOrEmpty(prefId) && root.TryGetProperty("order", out var order))
+                if (order.TryGetProperty("id", out var orderId))
+                    prefId = orderId.GetString() ?? "";
+
+            // INTENTO 3 (EL SALVAVIDAS): Buscar en metadata (a veces se guarda ahí)
+            if (string.IsNullOrEmpty(prefId) && root.TryGetProperty("metadata", out var meta))
+                if (meta.TryGetProperty("preference_id", out var mId))
+                    prefId = mId.GetString() ?? "";
+
+            // SI DESPUÉS DE TODO ESTO SIGUE VACÍO, USAREMOS LA REFERENCIA EXTERNA COMO PLAN B
+            return (status, extRef, prefId, amount);
+
         }
 
-        public async Task<(string Status, string PaymentId)> GetPaymentByPreferenceAsync(string externalReference)
+      
+    
+
+    // --- HELPER PARA CONFIGURAR EL CLIENTE HTTP Y EL TOKEN ---
+        private HttpClient GetConfiguredClient()
         {
             var client = _httpClientFactory.CreateClient("MercadoPago");
             var accessToken = _configuration["MercadoPago:AccessToken"];
 
             if (string.IsNullOrEmpty(accessToken))
-                throw new InvalidOperationException("Access Token de Mercado Pago no configurado.");
+                throw new InvalidOperationException("Access Token de Mercado Pago no configurado en appsettings.json.");
 
             client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-            // Buscamos pagos recientes que tengan este external_reference (UserId)
-            // Ordenamos por fecha de creación descendente para obtener el más nuevo
-            var searchResponse = await client.GetAsync($"https://api.mercadopago.com/v1/payments/search?external_reference={externalReference}&sort=date_created&criteria=desc");
-
-            if (!searchResponse.IsSuccessStatusCode)
-            {
-                var error = await searchResponse.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error buscando pagos para {externalReference}: {error}");
-                return (string.Empty, string.Empty);
-            }
-
-            var searchJson = await searchResponse.Content.ReadAsStringAsync();
-            using var searchDoc = JsonDocument.Parse(searchJson);
-
-            if (!searchDoc.RootElement.TryGetProperty("results", out var results) || results.GetArrayLength() == 0)
-            {
-                Console.WriteLine($"No se encontraron pagos en MP para el external_reference: {externalReference}");
-                return (string.Empty, string.Empty);
-            }
-
-            // Buscamos si alguno de los resultados (especialmente los más recientes) está aprobado
-            var payment = results.EnumerateArray()
-                .FirstOrDefault(p => p.TryGetProperty("status", out var s) && s.GetString() == "approved");
-
-            // Si ninguno está aprobado, tomamos el más reciente de todos
-            if (payment.ValueKind == JsonValueKind.Undefined)
-            {
-                payment = results.EnumerateArray().First();
-            }
-
-            var status = payment.GetProperty("status").GetString() ?? string.Empty;
-            var paymentId = payment.GetProperty("id").GetRawText(); // GetRawText para evitar problemas con números largos
-
-            Console.WriteLine($"Resultado de búsqueda en MP para {externalReference}: Status={status}, PaymentId={paymentId}");
-
-            return (status, paymentId);
-        }
-
-        public async Task<(string Status, string PaymentId)> GetPaymentByPreferenceIdAsync(string preferenceId)
-        {
-            var client = _httpClientFactory.CreateClient("MercadoPago");
-            var accessToken = _configuration["MercadoPago:AccessToken"];
-
-            if (string.IsNullOrEmpty(accessToken))
-                throw new InvalidOperationException("Access Token de Mercado Pago no configurado.");
-
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
-            // Buscamos pagos asociados a esta preferencia específica
-            var searchResponse = await client.GetAsync($"https://api.mercadopago.com/v1/payments/search?preference_id={preferenceId}");
-
-            if (!searchResponse.IsSuccessStatusCode)
-                return (string.Empty, string.Empty);
-
-            var searchJson = await searchResponse.Content.ReadAsStringAsync();
-            using var searchDoc = JsonDocument.Parse(searchJson);
-
-            if (!searchDoc.RootElement.TryGetProperty("results", out var results) || results.GetArrayLength() == 0)
-                return (string.Empty, string.Empty);
-
-            // Tomamos el pago aprobado si existe, sino el primero
-            var payment = results.EnumerateArray()
-                .FirstOrDefault(p => p.TryGetProperty("status", out var s) && s.GetString() == "approved");
-
-            if (payment.ValueKind == JsonValueKind.Undefined)
-                payment = results.EnumerateArray().First();
-
-            var status = payment.GetProperty("status").GetString() ?? string.Empty;
-            var paymentId = payment.GetProperty("id").GetRawText();
-
-            return (status, paymentId);
+            return client;
         }
     }
 }

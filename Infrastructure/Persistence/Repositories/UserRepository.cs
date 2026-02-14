@@ -62,6 +62,8 @@ namespace Infrastructure.Persistence.Repositories
         {
             return _context.Users
                 .Include(u => u.GymClasses)
+                .Include(u => u.Subscriptions)
+                .ThenInclude(s => s.Plan) 
                 .FirstOrDefault(u => u.Id == id);
         }
 
