@@ -166,7 +166,8 @@ namespace Application.Services
                 Fecha = p.Fecha,
                 Pagado = p.Pagado,
                 MetodoPago = p.MetodoPago,
-                SubscriptionId = p.SubscriptionId ?? 0 
+                SubscriptionId = p.SubscriptionId ?? 0,
+                UserId = p.UserId
             };
         }
     }
