@@ -223,27 +223,8 @@ namespace Application.Services
             return _userRepository.UpdateUser(id, existingUser);
         }
 
-        // AHORA DEPENDE DE LA SUSCRIPCION 
+        
 
-        //public bool ChangeUserPlan(int userId, int newPlanId)
-        //{
-
-        //    var newPlan = _planRepository.GetPlanById(newPlanId);
-        //    if (newPlan == null) return false;
-
-
-        //    var user = _userRepository.GetById(userId);
-        //    if (user == null) return false;
-
-
-        //    if (user.PlanId == newPlanId) return true;
-
-
-        //    user.PlanId = newPlanId;
-        //    user.Plan = newPlan;
-
-        //    return _userRepository.UpdateUser(userId, user);
-        //}
 
         public async Task<bool> RequestPasswordResetAsync(string email)
         {
@@ -307,7 +288,11 @@ namespace Application.Services
             if (user == null) return null;
 
             // Obtener plan activo desde la suscripción activa
-            var activeSubscription = user.Subscriptions?.FirstOrDefault(s => s.IsActive);
+            var activeSubscription = user.Subscriptions?
+                .Where(s => s.IsActive)
+                .OrderByDescending(s => s.EndDate)
+                .FirstOrDefault();
+
             var activePlanId = activeSubscription?.PlanId ?? 0;
 
             bool isRealActive = activeSubscription != null && activeSubscription.IsActive && activeSubscription.EndDate > DateTime.Now;
