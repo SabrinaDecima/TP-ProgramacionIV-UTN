@@ -236,7 +236,7 @@ namespace Application.Services
 
             var resetToken = Guid.NewGuid().ToString();
             user.PasswordResetToken = resetToken;
-            user.ResetTokenExpires = DateTime.UtcNow.AddHours(1);
+            user.ResetTokenExpires = DateTime.Now.AddHours(1);
 
             if (!_userRepository.UpdateUser(user.Id, user))
                 return false;
@@ -265,7 +265,7 @@ namespace Application.Services
             var users = _userRepository.GetUsers();
             var user = users.FirstOrDefault(u => u.PasswordResetToken == token);
 
-            if (user == null || user.ResetTokenExpires < DateTime.UtcNow)
+            if (user == null || user.ResetTokenExpires < DateTime.Now)
                 return false;
 
             // Actualización de contraseña

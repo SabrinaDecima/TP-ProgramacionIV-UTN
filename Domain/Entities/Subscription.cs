@@ -23,7 +23,7 @@ namespace Domain.Entities
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
         // Propiedad calculada 
-        public bool IsExpired => DateTime.UtcNow > EndDate;
+        public bool IsExpired => DateTime.Now > EndDate;
 
     }
 }

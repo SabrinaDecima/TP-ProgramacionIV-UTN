@@ -37,15 +37,15 @@ namespace Application.Services
 
             if(existingSub != null)
             {
-                throw new InvalidOperationException("El usuario ya tiene una suscripción activa.");
+                throw new InvalidOperationException("El usuario ya tiene una suscripciï¿½n activa.");
             }
 
             var subscription = new Subscription
             {
                 UserId = userId,
                 PlanId = planId,
-                StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddMonths(1),
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddMonths(1),
                 IsActive = true
             };
 
@@ -68,15 +68,15 @@ namespace Application.Services
 
            
 
-            // Obtener suscripción activa
+            // Obtener suscripciï¿½n activa
             var activeSubscription = await _subscriptionRepository.GetActiveSubscriptionAsync(userId);
 
-            // Si está en deuda (vencida), la nueva empieza hoy.
-            DateTime startDate = (activeSubscription != null && activeSubscription.EndDate > DateTime.UtcNow)
+            // Si estï¿½ en deuda (vencida), la nueva empieza hoy.
+            DateTime startDate = (activeSubscription != null && activeSubscription.EndDate > DateTime.Now)
                                  ? activeSubscription.EndDate
-                                 : DateTime.UtcNow;
+                                 : DateTime.Now;
 
-            // Crear nueva suscripción
+            // Crear nueva suscripciï¿½n
             var newSubscription = new Subscription
             {
                 UserId = userId,
@@ -101,7 +101,7 @@ namespace Application.Services
                 UserId = sub.UserId,
                 SubscriptionId = sub.Id,
                 Monto = amount,
-                Fecha = DateTime.UtcNow,
+                Fecha = DateTime.Now,
                 Pagado = true,
                 MetodoPago = method
             };

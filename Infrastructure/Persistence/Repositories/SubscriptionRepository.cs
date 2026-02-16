@@ -16,7 +16,7 @@ namespace Infrastructure.Repositories
 
         public async Task<Subscription?> GetActiveSubscriptionAsync(int userId)
         {
-            var now = DateTime.UtcNow;
+            var now = DateTime.Now;
             return await _context.Subscriptions
                 .Include(s => s.Plan) 
                 .FirstOrDefaultAsync(s => s.UserId == userId && s.IsActive && s.EndDate > now);
@@ -43,7 +43,7 @@ namespace Infrastructure.Repositories
         public async Task<List<Subscription>> GetExpiredSubscriptionsAsync()
         {
             return await _context.Subscriptions
-                .Where(s => s.IsActive && s.EndDate <= DateTime.UtcNow)
+                .Where(s => s.IsActive && s.EndDate <= DateTime.Now)
                 .ToListAsync();
         }
 

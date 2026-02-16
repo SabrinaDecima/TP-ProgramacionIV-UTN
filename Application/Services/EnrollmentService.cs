@@ -60,7 +60,7 @@ namespace Application.Services
                     UserId = user.Id,
                     GymClassId = gymClass.Id,
                     ClassDate = classDate,
-                    ActionDate = DateTime.UtcNow,
+                    ActionDate = DateTime.Now,
                     Status = HistoricalStatus.Active
                 });
             }
@@ -98,7 +98,7 @@ namespace Application.Services
                 if (historical != null)
                 {
                     historical.Status = HistoricalStatus.Cancelled;
-                    historical.ActionDate = DateTime.UtcNow;
+                    historical.ActionDate = DateTime.Now;
 
                     _historicalRepository.Update(historical);
                 }
