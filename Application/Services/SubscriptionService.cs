@@ -10,6 +10,7 @@ namespace Application.Services
         private readonly IPlanRepository _planRepository;
         private readonly IUserRepository _userRepository;
         private readonly IPaymentRepository _paymentRepository;
+
         public SubscriptionService(
             ISubscriptionRepository subscriptionRepository,
             IPlanRepository planRepository,
@@ -22,22 +23,17 @@ namespace Application.Services
             _paymentRepository = paymentRepository;
         }
 
-        public async Task<bool> CreateSubscriptionAsync(int userId, int planId, decimal amount, string paymentMethod)
+        public async Task<bool> CreateSubscriptionAsync(int userId, int planId, decimal amount, string paymentMethod, int? paymentId = null)
         {
-            
-            var user =  _userRepository.GetById(userId);
-
+            var user = _userRepository.GetById(userId);
             var plan = _planRepository.GetPlanById(planId);
-
             if (user == null || plan == null)
                 return false;
 
-
             var existingSub = await _subscriptionRepository.GetActiveSubscriptionAsync(userId);
-
-            if(existingSub != null)
+            if (existingSub != null)
             {
-                throw new InvalidOperationException("El usuario ya tiene una suscripci�n activa.");
+                throw new InvalidOperationException("El usuario ya tiene una suscripción activa.");
             }
 
             var subscription = new Subscription
@@ -52,31 +48,31 @@ namespace Application.Services
             var created = await _subscriptionRepository.CreateAsync(subscription);
             if (!created) return false;
 
-            // registro de pago
-            await RegisterPaymentAsync(subscription, amount, paymentMethod);
+            if (paymentId.HasValue)
+            {
+                await LinkPaymentToSubscriptionAsync(subscription.Id, paymentId.Value);
+            }
+            else
+            {
+                await RegisterPaymentAsync(subscription, amount, paymentMethod);
+            }
 
             return true;
         }
 
-        public async Task<bool> RenewSubscriptionAsync(int userId, int planId, decimal amount, string paymentMethod)
+        public async Task<bool> RenewSubscriptionAsync(int userId, int planId, decimal amount, string paymentMethod, int? paymentId = null)
         {
-            
-            var user =  _userRepository.GetById(userId);
+            var user = _userRepository.GetById(userId);
             var plan = _planRepository.GetPlanById(planId);
             if (user == null || plan == null)
                 return false;
 
-           
-
-            // Obtener suscripci�n activa
             var activeSubscription = await _subscriptionRepository.GetActiveSubscriptionAsync(userId);
 
-            // Si est� en deuda (vencida), la nueva empieza hoy.
             DateTime startDate = (activeSubscription != null && activeSubscription.EndDate > DateTime.Now)
-                                 ? activeSubscription.EndDate
-                                 : DateTime.Now;
+                ? activeSubscription.EndDate
+                : DateTime.Now;
 
-            // Crear nueva suscripci�n
             var newSubscription = new Subscription
             {
                 UserId = userId,
@@ -89,9 +85,27 @@ namespace Application.Services
             var created = await _subscriptionRepository.CreateAsync(newSubscription);
             if (!created) return false;
 
-            await RegisterPaymentAsync(newSubscription, amount, paymentMethod);
+            if (paymentId.HasValue)
+            {
+                await LinkPaymentToSubscriptionAsync(newSubscription.Id, paymentId.Value);
+            }
+            else
+            {
+                await RegisterPaymentAsync(newSubscription, amount, paymentMethod);
+            }
 
             return true;
+        }
+
+        private async Task LinkPaymentToSubscriptionAsync(int subscriptionId, int paymentId)
+        {
+            var payment = await _paymentRepository.GetByIdAsync(paymentId);
+            if (payment != null)
+            {
+                payment.SubscriptionId = subscriptionId;
+                payment.Pagado = true;
+                await _paymentRepository.UpdateAsync(payment);
+            }
         }
 
         private async Task RegisterPaymentAsync(Subscription sub, decimal amount, string method)
@@ -105,7 +119,7 @@ namespace Application.Services
                 Pagado = true,
                 MetodoPago = method
             };
-             await _paymentRepository.CreateAsync(payment);
+            await _paymentRepository.CreateAsync(payment);
         }
 
         public async Task<Subscription?> GetActiveSubscriptionAsync(int userId)
@@ -125,9 +139,9 @@ namespace Application.Services
                 return false;
 
             subscription.IsActive = false;
-            
-            return await _subscriptionRepository.UpdateAsync(subscription); 
+            return await _subscriptionRepository.UpdateAsync(subscription);
         }
+
         public async Task ProcessExpirationAsync()
         {
             var expiredSubs = await _subscriptionRepository.GetExpiredSubscriptionsAsync();
