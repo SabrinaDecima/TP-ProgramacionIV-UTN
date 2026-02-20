@@ -17,7 +17,10 @@ namespace Infrastructure.Persistence.Repositories
 
         public List<User> GetUsers()
         {
-            return _context.Users.ToList();
+            return _context.Users
+                 .Include(u => u.Subscriptions)
+                 .ThenInclude(s => s.Plan)
+                 .ToList();
         }
 
         public User? GetById(int id)

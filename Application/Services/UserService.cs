@@ -128,7 +128,11 @@ namespace Application.Services
                     Apellido = u.Apellido,
                     Email = u.Email,
                     Telefono = u.Telefono,
-                    RoleId = u.RoleId
+                    RoleId = u.RoleId,
+                    PlanId = u.Subscriptions?
+                                 .OrderByDescending(s => s.Id) 
+                                 .FirstOrDefault(s => s.IsActive)?
+                                 .PlanId
                 }).ToList();
 
             return userList;
