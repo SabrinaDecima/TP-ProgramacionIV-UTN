@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Abstraction;
+using Application.Interfaces;
 using Application.Services;
 using Application.Services.Implementations;
 using Contracts.User.Request;
@@ -14,11 +15,17 @@ namespace PresentationAPI_TP.Controllers
     {
         private readonly IUserService _userService;
         private readonly IGymClassService _gymClassService;
+        private readonly ISubscriptionService _subscriptionService;
+        private readonly IPaymentService _paymentService;
+        private readonly IHistoricalService _historicalService;
 
-        public AdminUserController(IUserService userService, IGymClassService gymClassService)
+        public AdminUserController(IUserService userService, IGymClassService gymClassService, ISubscriptionService subscriptionService, IPaymentService paymentService, IHistoricalService historicalService)
         {
             _userService = userService;
             _gymClassService = gymClassService;
+            _subscriptionService = subscriptionService;
+            _paymentService = paymentService;
+            _historicalService = historicalService;
         }
 
 
@@ -73,36 +80,62 @@ namespace PresentationAPI_TP.Controllers
 
         [Authorize(Roles = "SuperAdministrador")]
         [HttpGet("activity-summary")]
-        public IActionResult GetActivitySummary()
+        public async Task<IActionResult> GetActivitySummary()
         {
             var allUsers = _userService.GetAll();
+            var allClasses = _gymClassService.GetAll(0);
+            var allPayments = await _paymentService.GetAllPaymentsAsync();
+
+            var activeSubscriptionsCount = 0;
+            var expiredSubscriptionsCount = 0;
+            foreach (var user in allUsers.Where(u => u.RoleId == 1))
+            {
+                var sub = await _subscriptionService.GetActiveSubscriptionAsync(user.Id);
+                if (sub != null)
+                {
+                    if (sub.IsActive && sub.EndDate > DateTime.Now)
+                        activeSubscriptionsCount++;
+                    else
+                        expiredSubscriptionsCount++;
+                }
+            }
+
+            var totalRevenue = allPayments
+                .Where(p => p.Pagado)
+                .Sum(p => p.Monto);
+
+            var classesWithAvailableSpots = allClasses
+                .Count(c => c.CurrentEnrollments < c.MaxCapacity);
+            var fullClasses = allClasses
+                .Count(c => c.CurrentEnrollments >= c.MaxCapacity);
 
             var stats = new
             {
                 TotalUsers = allUsers.Count,
                 TotalAdmins = allUsers.Count(u => u.RoleId == 2 || u.RoleId == 3),
                 TotalSocios = allUsers.Count(u => u.RoleId == 1),
-                TotalClasses = _gymClassService.GetAll(0).Count
+
+                ActiveSubscriptions = activeSubscriptionsCount,
+                ExpiredSubscriptions = expiredSubscriptionsCount,
+                SubscriptionRate = allUsers.Count(u => u.RoleId == 1) > 0
+                    ? Math.Round((double)activeSubscriptionsCount / allUsers.Count(u => u.RoleId == 1) * 100, 2)
+                    : 0,
+
+                TotalClasses = allClasses.Count,
+                ClassesWithAvailableSpots = classesWithAvailableSpots,
+                FullClasses = fullClasses,
+                OccupancyRate = allClasses.Any()
+                    ? Math.Round((double)allClasses.Sum(c => c.CurrentEnrollments) /
+                                 allClasses.Sum(c => c.MaxCapacity) * 100, 2)
+                    : 0,
+
+                TotalPayments = allPayments.Count,
+                PaidPayments = allPayments.Count(p => p.Pagado),
+                PendingPayments = allPayments.Count(p => !p.Pagado),
+                TotalRevenue = totalRevenue,
             };
 
-            var recentUsers = allUsers
-                .OrderByDescending(u => u.Id)
-                .Take(10)
-                .Select(u => new
-                {
-                    u.Email,
-                    Role = u.RoleId switch
-                    {
-                        1 => "Socio",
-                        2 => "Administrador",
-                        3 => "SuperAdministrador",
-                        _ => "Desconocido"
-                    },
-                    Plan = u.RoleId == 1 ? "Verificar suscripción activa" : "N/A"
-                })
-                .ToList();
-
-            return Ok(new { stats, recentUsers });
+            return Ok(new { stats });
         }
 
 
