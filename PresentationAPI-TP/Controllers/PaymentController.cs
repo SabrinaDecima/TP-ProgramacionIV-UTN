@@ -146,15 +146,13 @@ namespace WebAPI.Controllers
         [HttpGet("active/{userId}")]
         public async Task<IActionResult> GetActiveSubscription(int userId)
         {
-            
             var subscription = await _subscriptionService.GetActiveSubscriptionAsync(userId);
 
-            if (subscription == null)
+            return Ok(new
             {
-                return NotFound(new { message = "El usuario no tiene suscripciones activas" });
-            }
-
-            return Ok(subscription);
+                hasActiveSubscription = subscription != null,
+                subscription = subscription
+            });
         }
 
         // Helper para obtener el UserId
