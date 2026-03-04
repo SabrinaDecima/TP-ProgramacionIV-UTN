@@ -130,6 +130,7 @@ namespace PresentationAPI_TP.Controllers
                     ? Math.Round((double)allClasses.Sum(c => c.CurrentEnrollments) /
                     allClasses.Sum(c => c.MaxCapacity) * 100, 2)
                     : 0,
+                TotalEnrollments = allClasses.Sum(c => c.CurrentEnrollments),
                 TotalPayments = allPayments.Count,
                 PaidPayments = allPayments.Count(p => p.Pagado),
                 PendingPayments = allPayments.Count(p => !p.Pagado),
