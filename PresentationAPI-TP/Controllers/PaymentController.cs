@@ -132,15 +132,43 @@ namespace WebAPI.Controllers
             }
         }
 
-        //  PAGO MANUAL (Solo Admins - Efectivo)
         [Authorize(Roles = "Administrador, SuperAdministrador")]
         [HttpPost("manual")]
         public async Task<IActionResult> ProcessManualPayment([FromBody] ManualPaymentRequest request)
         {
-            var success = await _paymentService.ProcessManualPaymentAsync(request.UserId, request.PlanId, request.Monto);
-            if (!success) return BadRequest("No se pudo procesar el pago manual.");
+            // 🔹 VALIDAR PRIMERO SI EL USUARIO YA TIENE SUSCRIPCIÓN ACTIVA
+            var existingSubscription = await _subscriptionService.GetActiveSubscriptionAsync(request.UserId);
+            if (existingSubscription != null && existingSubscription.EndDate > DateTime.Now)
+            {
+                return BadRequest(new
+                {
+                    message = "El usuario ya tiene una suscripción activa."
+                });
+            }
 
-            return Ok(new { message = "Suscripción activada correctamente." });
+            // 🔹 SI NO TIENE SUSCRIPCIÓN, PROCEDER CON EL PAGO
+            try
+            {
+                var success = await _paymentService.ProcessManualPaymentAsync(
+                    request.UserId,
+                    request.PlanId,
+                    request.Monto
+                );
+
+                if (!success)
+                    return BadRequest(new { message = "No se pudo procesar el pago manual." });
+
+                return Ok(new { message = "Suscripción activada correctamente." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en pago manual: {ex.Message}");
+                return StatusCode(500, new { message = "Error interno al procesar el pago." });
+            }
         }
 
         [HttpGet("active/{userId}")]

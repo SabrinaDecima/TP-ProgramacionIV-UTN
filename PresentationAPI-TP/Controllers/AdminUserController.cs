@@ -85,13 +85,17 @@ namespace PresentationAPI_TP.Controllers
             var allUsers = _userService.GetAll();
             var allClasses = _gymClassService.GetAll(0);
             var allPayments = await _paymentService.GetAllPaymentsAsync();
+            // 🔹 Payments ya vienen filtrados desde PaymentService (IDs > 3)
 
             var activeSubscriptionsCount = 0;
             var expiredSubscriptionsCount = 0;
+
             foreach (var user in allUsers.Where(u => u.RoleId == 1))
             {
                 var sub = await _subscriptionService.GetActiveSubscriptionAsync(user.Id);
-                if (sub != null)
+
+                // 🔹 FILTRAR SUBSCRIPTIONS SEEDED (IDs 1, 2)
+                if (sub != null && sub.Id > 2)
                 {
                     if (sub.IsActive && sub.EndDate > DateTime.Now)
                         activeSubscriptionsCount++;
@@ -114,21 +118,18 @@ namespace PresentationAPI_TP.Controllers
                 TotalUsers = allUsers.Count,
                 TotalAdmins = allUsers.Count(u => u.RoleId == 2 || u.RoleId == 3),
                 TotalSocios = allUsers.Count(u => u.RoleId == 1),
-
                 ActiveSubscriptions = activeSubscriptionsCount,
                 ExpiredSubscriptions = expiredSubscriptionsCount,
                 SubscriptionRate = allUsers.Count(u => u.RoleId == 1) > 0
                     ? Math.Round((double)activeSubscriptionsCount / allUsers.Count(u => u.RoleId == 1) * 100, 2)
                     : 0,
-
                 TotalClasses = allClasses.Count,
                 ClassesWithAvailableSpots = classesWithAvailableSpots,
                 FullClasses = fullClasses,
                 OccupancyRate = allClasses.Any()
                     ? Math.Round((double)allClasses.Sum(c => c.CurrentEnrollments) /
-                                 allClasses.Sum(c => c.MaxCapacity) * 100, 2)
+                    allClasses.Sum(c => c.MaxCapacity) * 100, 2)
                     : 0,
-
                 TotalPayments = allPayments.Count,
                 PaidPayments = allPayments.Count(p => p.Pagado),
                 PendingPayments = allPayments.Count(p => !p.Pagado),

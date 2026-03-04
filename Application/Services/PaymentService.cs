@@ -110,7 +110,11 @@ namespace Application.Services
         public async Task<List<PaymentResponse>> GetAllPaymentsAsync()
         {
             var payments = await _paymentRepository.GetAllAsync();
-            return payments.Select(p => MapToResponse(p)).ToList();
+
+            // 🔹 FILTRAR PAGOS SEEDED (IDs 1, 2, 3)
+            var realPayments = payments.Where(p => p.Id > 3).ToList();
+
+            return realPayments.Select(p => MapToResponse(p)).ToList();
         }
 
         public async Task<PaymentResponse?> GetPaymentByIdAsync(int id)
@@ -158,7 +162,13 @@ namespace Application.Services
                 Pagado = p.Pagado,
                 MetodoPago = p.MetodoPago,
                 SubscriptionId = p.SubscriptionId ?? 0,
-                UserId = p.UserId
+                UserId = p.UserId,
+
+                // 🔹 AGREGAR NOMBRE Y EMAIL DEL USUARIO
+                UserName = p.User?.Nombre != null
+                    ? $"{p.User.Nombre} {p.User.Apellido}".Trim()
+                    : null,
+                UserEmail = p.User?.Email
             };
         }
     }
