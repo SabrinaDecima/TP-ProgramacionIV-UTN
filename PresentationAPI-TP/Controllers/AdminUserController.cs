@@ -140,6 +140,16 @@ namespace PresentationAPI_TP.Controllers
             return Ok(new { stats });
         }
 
+        [Authorize(Roles = "Administrador,SuperAdministrador")]
+        [HttpGet("profile/{userId}")]
+        public IActionResult GetUserProfile(int userId)
+        {
+            var profile = _userService.GetProfile(userId);
+            if (profile == null)
+                return NotFound(new { message = "Usuario no encontrado" });
+
+            return Ok(profile);
+        }
 
     }
 }
