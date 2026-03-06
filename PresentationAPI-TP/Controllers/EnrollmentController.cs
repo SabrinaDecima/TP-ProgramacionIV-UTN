@@ -29,7 +29,7 @@ namespace WebApi.Controllers
             
             if (!result.Success)
             {
-                return BadRequest(result.Message);
+                return BadRequest(new { message = result.Message });
             }
 
 
@@ -51,7 +51,7 @@ namespace WebApi.Controllers
 
 
             if (!result.Success)
-                return BadRequest(result.Message);
+                return BadRequest(new { message = result.Message });
 
             return Ok(result);
         }

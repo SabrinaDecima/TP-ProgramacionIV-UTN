@@ -36,8 +36,9 @@ namespace Application.Services
             if (gymClass == null)
                 return new EnrollmentResponse { Success = false, Message = "Clase no encontrada." };
 
-            if (!await CanEnrollAsync(user))
-                return new EnrollmentResponse { Success = false, Message = "No puede inscribirse según su plan. Verifique su suscripción activa." };
+            var enrollmentCheck = await CanEnrollAsync(user);
+            if (!enrollmentCheck.CanEnroll)
+                return new EnrollmentResponse { Success = false, Message = enrollmentCheck.Message };
 
             if (gymClass.Users.Count >= gymClass.MaxCapacityUser)
                 return new EnrollmentResponse { Success = false, Message = "La clase está completa." };
@@ -117,27 +118,31 @@ namespace Application.Services
             };
         }
 
-        private async Task<bool> CanEnrollAsync(User user)
+        private async Task<(bool CanEnroll, string Message)> CanEnrollAsync(User user)
         {
-            // Obtener suscripción activa del usuario
             var activeSubscription = await _subscriptionRepository.GetActiveSubscriptionAsync(user.Id);
 
-            // Si no tiene suscripción activa, no puede inscribirse
             if (activeSubscription == null || !activeSubscription.IsActive ||
                 activeSubscription.EndDate < DateTime.Now)
-                return false;
+                return (false, "No tenés una suscripción activa. Por favor, abona tu plan para reservar clases.");
 
-            // Validar límite según el plan
             var limit = activeSubscription.PlanId switch
             {
-                1 => 5,    // Plan Basic: máx 5 clases
-                2 => 10,   // Plan Premium: máx 10 clases
-                3 => 15,   // Plan Elite: máx 15 clases
+                1 => 5,
+                2 => 10,
+                3 => 15,
                 _ => 0
             };
 
-            // Retorna true si puede inscribirse (clases actuales < límite)
-            return (user.GymClasses?.Count ?? 0) < limit;
+            var currentEnrollments = user.GymClasses?.Count ?? 0;
+
+            if (currentEnrollments >= limit)
+            {
+                var planName = activeSubscription.Plan?.Tipo.ToString() ?? "tu plan";
+                return (false, $"Límite de clases alcanzado. Tu plan {planName} incluye {limit} clases mensuales y ya reservaste {currentEnrollments}.");
+            }
+
+            return (true, string.Empty);
         }
     }
 }
