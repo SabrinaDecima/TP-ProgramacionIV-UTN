@@ -32,5 +32,6 @@ namespace Application.Interfaces
 
         Task<User?> GetByEmailAsync(string email);
         UserProfileResponse? GetProfile(int userId);
+        UserDeleteSummaryResponse? GetDeleteSummary(int userId);
     }
 }

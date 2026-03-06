@@ -150,6 +150,17 @@ namespace PresentationAPI_TP.Controllers
 
             return Ok(profile);
         }
+        // ✅ AGREGAR ESTE ENDPOINT
+        [Authorize(Roles = "Administrador,SuperAdministrador")]
+        [HttpGet("{id}/delete-summary")]
+        public IActionResult GetDeleteSummary(int id)
+        {
+            var summary = _userService.GetDeleteSummary(id);
+            if (summary == null)
+                return NotFound(new { message = "Usuario no encontrado" });
+
+            return Ok(summary);
+        }
 
     }
 }

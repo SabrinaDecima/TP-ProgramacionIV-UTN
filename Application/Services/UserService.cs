@@ -16,6 +16,7 @@ namespace Application.Services
         private readonly IPasswordService _passwordService;
         private readonly IEmailService _emailService;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly ISubscriptionRepository _subscriptionRepository;
 
 
 
@@ -25,7 +26,8 @@ namespace Application.Services
             IRoleRepository roleRepository,
             IPasswordService passwordService,
             IEmailService emailService,
-            IPaymentRepository paymentRepository)
+            IPaymentRepository paymentRepository,
+            ISubscriptionRepository subscriptionRepository)
         {
             _userRepository = userRepository;
             _planRepository = planRepository;
@@ -33,6 +35,7 @@ namespace Application.Services
             _passwordService = passwordService;
             _emailService = emailService;
             _paymentRepository = paymentRepository;
+            _subscriptionRepository = subscriptionRepository;
         }
 
         public bool CreateUser(CreateUserRequest request)
@@ -323,6 +326,56 @@ namespace Application.Services
                 }).ToList() ?? new List<GymClassSummary>()
             };
         }
+        // Application/Services/UserService.cs
+        public UserDeleteSummaryResponse? GetDeleteSummary(int userId)
+        {
+            var user = _userRepository.GetById(userId);
+            if (user == null) return null;
 
+            var activeSubscription = _subscriptionRepository
+                .GetActiveSubscriptionAsync(userId)
+                .Result;
+
+            var userWithClasses = _userRepository.GetUserWithClasses(userId);
+            var enrolledClassesCount = userWithClasses?.GymClasses?.Count ?? 0;
+
+            var payments = _paymentRepository.GetByUserIdAsync(userId).Result;
+            var paymentsCount = payments?.Count(p => p.Id > 3) ?? 0;
+
+            // ✅ MAPEO DE ROL SIN DEPENDER DE NAVEGACIÓN
+            var roleName = user.RoleId switch
+            {
+                1 => "Socio",
+                2 => "Administrador",
+                3 => "SuperAdministrador",
+                _ => "Sin Rol"
+            };
+
+            var warnings = new List<string>();
+            if (enrolledClassesCount > 0)
+                warnings.Add($"⚠️ Se liberarán {enrolledClassesCount} cupos de clases");
+
+            if (activeSubscription != null && activeSubscription.IsActive && activeSubscription.EndDate > DateTime.Now)
+                warnings.Add("⚠️ La suscripción activa será cancelada");
+
+            if (paymentsCount > 0)
+                warnings.Add("⚠️ Se eliminarán los registros de pago (no reversible)");
+
+            return new UserDeleteSummaryResponse
+            {
+                UserId = user.Id,
+                UserName = $"{user.Nombre} {user.Apellido}".Trim(),
+                Email = user.Email,
+                RoleName = roleName,
+                HasActiveSubscription = activeSubscription != null &&
+                                        activeSubscription.IsActive &&
+                                        activeSubscription.EndDate > DateTime.Now,
+                SubscriptionEndDate = activeSubscription?.EndDate,
+                EnrolledClassesCount = enrolledClassesCount,
+                PaymentsCount = paymentsCount,
+                Warnings = warnings
+            };
+        }
     }
+
 }
