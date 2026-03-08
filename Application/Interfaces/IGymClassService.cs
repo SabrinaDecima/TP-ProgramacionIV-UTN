@@ -19,5 +19,7 @@ namespace Application.Interfaces
         GymClassResponse? CreateGymClass(CreateGymClassRequest request);
         bool UpdateGymClass(int id, UpdateGymClassRequest request);
         bool DeleteGymClass(int id);
+        GymClassDeleteSummaryResponse? GetDeleteSummary(int gymClassId);
+        GymClassEnrolledUsersResponse? GetEnrolledUsers(int gymClassId);
     }
 }

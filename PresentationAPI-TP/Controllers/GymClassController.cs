@@ -119,5 +119,24 @@ namespace WebApi.Controllers
 
             return Ok();
         }
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
+        [HttpGet("{id}/delete-summary")]
+        public IActionResult GetDeleteSummary(int id)
+        {
+            var summary = _gymClassService.GetDeleteSummary(id);
+            if (summary == null)
+                return NotFound(new { message = "Clase no encontrada" });
+            return Ok(summary);
+        }
+
+        [Authorize(Roles = "Administrador, SuperAdministrador")]
+        [HttpGet("{id}/enrolled-users")]
+        public IActionResult GetEnrolledUsers(int id)
+        {
+            var enrolledUsers = _gymClassService.GetEnrolledUsers(id);
+            if (enrolledUsers == null)
+                return NotFound(new { message = "Clase no encontrada" });
+            return Ok(enrolledUsers);
+        }
     }
 }

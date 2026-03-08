@@ -131,5 +131,67 @@ namespace Application.Services
         {
             return _gymClassRepository.DeleteGymClass(id);
         }
+        public GymClassDeleteSummaryResponse? GetDeleteSummary(int gymClassId)
+        {
+            var gymClass = _gymClassRepository.GetByIdWithUsers(gymClassId);
+            if (gymClass == null) return null;
+
+            var enrolledUsers = gymClass.Users.Select(u => $"{u.Nombre} {u.Apellido}".Trim()).ToList();
+            var warnings = new List<string>();
+
+            if (enrolledUsers.Count > 0)
+            {
+                warnings.Add($"⚠️ Se eliminarán {enrolledUsers.Count} inscripciones de usuarios");
+                warnings.Add("⚠️ Los usuarios deberán reservar nuevamente si la clase se vuelve a crear");
+            }
+
+            var dayNames = new Dictionary<int, string>
+    {
+        { 1, "Lunes" }, { 2, "Martes" }, { 3, "Miércoles" },
+        { 4, "Jueves" }, { 5, "Viernes" }, { 6, "Sábado" }, { 7, "Domingo" }
+    };
+
+            return new GymClassDeleteSummaryResponse
+            {
+                GymClassId = gymClass.Id,
+                ClassName = gymClass.Nombre,
+                DayAndTime = $"{dayNames[(int)gymClass.Dia]} - {gymClass.Hora}",
+                EnrolledUsersCount = enrolledUsers.Count,
+                EnrolledUsers = enrolledUsers,
+                Warnings = warnings
+            };
+        }
+
+        public GymClassEnrolledUsersResponse? GetEnrolledUsers(int gymClassId)
+        {
+            var gymClass = _gymClassRepository.GetByIdWithUsers(gymClassId);
+            if (gymClass == null) return null;
+
+            var dayNames = new Dictionary<int, string>
+    {
+        { 1, "Lunes" }, { 2, "Martes" }, { 3, "Miércoles" },
+        { 4, "Jueves" }, { 5, "Viernes" }, { 6, "Sábado" }, { 7, "Domingo" }
+    };
+
+            return new GymClassEnrolledUsersResponse
+            {
+                GymClassId = gymClass.Id,
+                ClassName = gymClass.Nombre,
+                DayAndTime = $"{dayNames[(int)gymClass.Dia]} - {gymClass.Hora}",
+                MaxCapacity = gymClass.MaxCapacityUser,
+                CurrentEnrollments = gymClass.Users.Count,
+                Users = gymClass.Users.Select(u => new EnrolledUserDto
+                {
+                    Id = u.Id,
+                    Nombre = u.Nombre,
+                    Apellido = u.Apellido,
+                    Email = u.Email,
+                    PlanName = u.Subscriptions?
+                        .Where(s => s.IsActive && s.EndDate > DateTime.Now)
+                        .OrderByDescending(s => s.EndDate)
+                        .FirstOrDefault()?.Plan?.Tipo.ToString() ?? "Sin Plan"
+                }).ToList()
+            };
+        }
     }
 }
