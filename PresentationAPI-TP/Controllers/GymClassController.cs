@@ -66,19 +66,25 @@ namespace WebApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        // PresentationAPI-TP/Controllers/GymClassController.cs
         [Authorize(Roles = "Administrador, SuperAdministrador")]
         [HttpPut("{id}")]
-        public IActionResult Update([FromRoute] int id , [FromBody] UpdateGymClassRequest request)
+        public IActionResult Update([FromRoute] int id, [FromBody] UpdateGymClassRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Nombre))
                 return BadRequest("El nombre de la clase es obligatorio.");
 
-
-            var updated = _gymClassService.UpdateGymClass(id,request);
-            if (!updated)
-                return NotFound("Clase de gimnasio no encontrada.");
-
-            return Ok(); 
+            try
+            {
+                var updated = _gymClassService.UpdateGymClass(id, request);
+                if (!updated)
+                    return NotFound("Clase de gimnasio no encontrada.");
+                return Ok(new { message = "Clase actualizada correctamente." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "Administrador, SuperAdministrador")]

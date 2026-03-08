@@ -112,10 +112,21 @@ namespace Application.Services
             };
         }
 
+        // Application/Services/GymClassService.cs
         public bool UpdateGymClass(int id, UpdateGymClassRequest request)
         {
-            var gymClass = _gymClassRepository.GetById(id);
+            var gymClass = _gymClassRepository.GetByIdWithUsers(id);  // ✅ Con usuarios para validar
             if (gymClass == null) return false;
+
+            // ✅ VALIDACIÓN: No permitir reducir capacidad por debajo de inscriptos
+            if (request.MaxCapacity < gymClass.Users.Count)
+            {
+                throw new InvalidOperationException(
+                    $"No se puede reducir la capacidad a {request.MaxCapacity}. " +
+                    $"Hay {gymClass.Users.Count} usuarios inscriptos. " +
+                    $"La capacidad mínima debe ser {gymClass.Users.Count}."
+                );
+            }
 
             gymClass.Nombre = request.Nombre;
             gymClass.Dia = request.Dia;
@@ -123,6 +134,7 @@ namespace Application.Services
             gymClass.Descripcion = request.Descripcion;
             gymClass.DuracionMinutos = request.DuracionMinutos;
             gymClass.ImageUrl = request.ImageUrl;
+            gymClass.MaxCapacityUser = request.MaxCapacity;  // ✅ AGREGAR
 
             return _gymClassRepository.UpdateGymClass(id, gymClass);
         }
